@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="slim_stripe">8dip</dimen>
+    <dimen name="medium_stripe">25dip</dimen>
+    <dimen name="wide_stripe">50dip</dimen>
+
+    <dimen name="dir_outer_padding">16sp</dimen>
+    <dimen name="dir_column_width_intended">360sp</dimen>
+    <dimen name="dir_horizontal_spacing">16sp</dimen>
+
+    <dimen name="gallery_outer_padding">16sp</dimen>
+    <dimen name="gallery_horizontal_spacing">8sp</dimen>
+    <dimen name="gallery_icon_size">192sp</dimen>
+    <dimen name="gallery_column_width_intended">266sp</dimen>
+</resources>

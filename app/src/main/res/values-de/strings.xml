@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Aspect Slider</string>
+    <string name="no_pictures">Keine Bilder</string>
+    <plurals name="refused_pictures">
+        <item quantity="one">Ein Bild wird wegen Mindest-Bildgröße %2$s nicht angezeigt</item>
+        <item quantity="other">%1$d Bilder werden wegen Mindest-Bildgröße %2$s nicht angezeigt</item>
+    </plurals>
+    <string name="refused_filter_name_when_not_availabe" formatted="false">n/a</string>
+    <string name="scanning">Bilder finden&#8230;</string>
+    <string name="menu_usepicturesdir">Bilder-Verzeichnis</string>
+    <string name="menu_useextstoragedir">Externer Speicher</string>
+    <string name="menu_userootdir">Root</string>
+    <string name="menu_choosedir">Verzeichnis wählen&#8230;</string>
+    <string name="menu_allpictures">Alle Bilder</string>
+    <string name="menu_choosemediastore">Galerie wählen&#8230;</string>
+    <string name="menu_settings">Einstellungen&#8230;</string>
+    <string name="select_gallery">Galerie auswählen</string>
+    <string name="select_gallery_no_media">Keine Bilder gefunden</string>
+    <plurals name="select_gallery_num_pictures">
+        <item quantity="one">ein Bild</item>
+        <item quantity="other">%d Bilder</item>
+    </plurals>
+    <string name="dir_selectthis">%s &#9654; auswählen</string>
+    <string name="dir_up">&#8679; hoch</string>
+    <string name="dir_root">&lt;Root&gt;</string>
+    <string name="dir_info_format_files_and_subdirs" formatted="false">%s, %s</string>
+    <plurals name="dir_info_format_files">
+        <item quantity="one">eine Datei</item>
+        <item quantity="other">%d Dateien</item>
+    </plurals>
+    <plurals name="dir_info_format_subdirs">
+        <item quantity="one">ein Verzeichnis</item>
+        <item quantity="other">%d Verzeichnisse</item>
+    </plurals>
+    <string name="dir_info_format_empty" formatted="false">leer</string>
+    <string name="dir_upto_format">nach %s</string>
+    <string name="dir_cannotread">Verzeichnis nicht lesbar.</string>
+</resources>

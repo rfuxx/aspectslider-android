@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_delay_list_values">
+        <item>1000</item>
+        <item>2000</item>
+        <item>3000</item>
+        <item>4000</item>
+        <item>5000</item>
+        <item>6000</item>
+        <item>7000</item>
+        <item>8000</item>
+        <item>9000</item>
+        <item>10000</item>
+        <item>15000</item>
+        <item>20000</item>
+        <item>25000</item>
+        <item>30000</item>
+        <item>40000</item>
+        <item>50000</item>
+        <item>60000</item>
+    </string-array>
+    <string-array name="pref_space_between_slides_list_values">
+        <item>no_space</item>
+        <item>min_space</item>
+        <item>one_visible_pixel</item>
+        <item>slim_stripe</item>
+        <item>medium_stripe</item>
+        <item>wide_stripe</item>
+    </string-array>
+    <string-array name="pref_size_filter_list_values">
+        <item>none</item>
+        <item>fitscreen</item>
+        <item>aslargeasscreen</item>
+        <item>wrongaspect</item>
+        <item>hd720p</item>
+        <item>hd1080p</item>
+        <item>video4k</item>
+    </string-array>
+</resources>

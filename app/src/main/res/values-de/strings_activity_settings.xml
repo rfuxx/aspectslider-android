@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_settings">Einstellungen</string>
+
+    <string name="pref_header_slide_show">Anzeige</string>
+    <string name="pref_header_scan_files">Bilder finden</string>
+
+    <string name="pref_title_random">Zufällig</string>
+    <string name="pref_description_random">Anzeige in zufälliger Reihenfolge</string>
+
+    <string name="pref_title_random_again">Neu mischen</string>
+    <string name="pref_description_random_again">nach jedem Durchgang</string>
+
+    <string name="pref_title_delay">Anzeigedauer</string>
+    <string-array name="pref_delay_list_titles">
+        <item>1s</item>
+        <item>2s</item>
+        <item>3s</item>
+        <item>4s</item>
+        <item>5s</item>
+        <item>6s</item>
+        <item>7s</item>
+        <item>8s</item>
+        <item>9s</item>
+        <item>10s</item>
+        <item>15s</item>
+        <item>20s</item>
+        <item>25s</item>
+        <item>30s</item>
+        <item>40s</item>
+        <item>50s</item>
+        <item>60s</item>
+    </string-array>
+    <string name="pref_description_delay">Nächstes Bild nach %s</string>
+
+    <string name="pref_title_space_between_slides">Abstand</string>
+    <string-array name="pref_space_between_slides_list_titles">
+        <item>kein Abstand</item>
+        <item>minimaler Abstand</item>
+        <item>ein sichtbarer Pixel</item>
+        <item>ein schmaler Streifen</item>
+        <item>ein mttlerer Streifen</item>
+        <item>ein breiter Streifen</item>
+    </string-array>
+    <string name="pref_description_space_between_slides">Zwischen Bildern %s</string>
+
+    <string name="pref_title_recurse">Unterverzeichnisse</string>
+    <string name="pref_description_recurse">rekursiv durchsuchen</string>
+
+    <string name="pref_title_allow_overscan">Bilder abschneiden</string>
+    <string name="pref_description_allow_overscan">Schwarze Balken ganz vermeiden</string>
+
+    <string name="pref_title_size_filter">Bildgröße mindestens</string>
+    <string-array name="pref_size_filter_list_titles">
+        <item>Keine</item>
+        <item>ins Display passend</item>
+        <item>wie das Display</item>
+        <item>wie das Display gedreht</item>
+        <item>HDTV 720p</item>
+        <item>HDTV 1080p</item>
+        <item>4K Video</item>
+    </string-array>
+    <string name="pref_description_size_filter">Mindestens %s</string>
+
+    <string name="pref_title_remember_collection">Auswahl merken</string>
+    <string name="pref_description_remember_collection_unknown">unbekannt</string>
+
+    <string name="pref_title_ignore_media_store">Media Store ignorieren</string>
+    <string name="pref_description_ignore_media_store">Dateisystem benutzen</string>
+</resources>

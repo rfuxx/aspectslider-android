@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/dir_outer_padding"
+    android:orientation="vertical"
+    >
+    <GridView
+        android:id="@+id/dirgrid"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:horizontalSpacing="@dimen/dir_horizontal_spacing"
+        />
+    <Button
+        android:id="@+id/thisdirbutton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/dir_selectthis"
+        android:drawableLeft="@android:drawable/ic_media_play"
+        android:drawableStart="@android:drawable/ic_media_play"
+        />
+</LinearLayout>

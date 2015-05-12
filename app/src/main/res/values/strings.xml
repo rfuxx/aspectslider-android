@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Aspect Slider</string>
+    <string name="no_pictures">No Pictures</string>
+    <plurals name="refused_pictures">
+        <item quantity="one">One picture is not shown due to size filter %2$s</item>
+        <item quantity="other">%1$d pictures are not shown due to size filter %2$s</item>
+    </plurals>
+    <string name="refused_filter_name_when_not_availabe" formatted="false">n/a</string>
+    <string name="scanning">Scanning&#8230;</string>
+    <string name="menu_usepicturesdir">Pictures Directory</string>
+    <string name="menu_useextstoragedir">External Storage</string>
+    <string name="menu_userootdir">Root Directory</string>
+    <string name="menu_choosedir">Choose Directory&#8230;</string>
+    <string name="menu_allpictures">All Pictures</string>
+    <string name="menu_choosemediastore">Choose Gallery&#8230;</string>
+    <string name="menu_settings">Settings&#8230;</string>
+    <string name="select_gallery">Select Gallery</string>
+    <string name="select_gallery_no_media">No media found</string>
+    <plurals name="select_gallery_num_pictures">
+        <item quantity="one">one picture</item>
+        <item quantity="other">%d pictures</item>
+    </plurals>
+    <string name="dir_selectthis">Select &#9654; %s</string>
+    <string name="dir_up">&#8679; Up</string>
+    <string name="dir_root">&lt;root&gt;</string>
+    <string name="dir_info_format_files_and_subdirs" formatted="false">%s, %s</string>
+    <plurals name="dir_info_format_files">
+        <item quantity="one">one file</item>
+        <item quantity="other">%d files</item>
+    </plurals>
+    <plurals name="dir_info_format_subdirs">
+        <item quantity="one">one subdir</item>
+        <item quantity="other">%d subdirs</item>
+    </plurals>
+    <string name="dir_info_format_empty" formatted="false">empty</string>
+    <string name="dir_upto_format">to %s</string>
+    <string name="dir_cannotread">Cannot read directory.</string>
+</resources>

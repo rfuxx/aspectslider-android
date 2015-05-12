@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <string name="pref_header_slide_show">Slides</string>
+    <string name="pref_header_scan_files">Scan Pictures</string>
+
+    <string name="pref_title_random">Shuffle</string>
+    <string name="pref_description_random">Show in random order</string>
+
+    <string name="pref_title_random_again">Re-Shuffle At End</string>
+    <string name="pref_description_random_again">Different order in each cycle</string>
+
+    <string name="pref_title_delay">Delay</string>
+    <string-array name="pref_delay_list_titles">
+        <item>1 sec</item>
+        <item>2 sec</item>
+        <item>3 sec</item>
+        <item>4 sec</item>
+        <item>5 sec</item>
+        <item>6 sec</item>
+        <item>7 sec</item>
+        <item>8 sec</item>
+        <item>9 sec</item>
+        <item>10 sec</item>
+        <item>15 sec</item>
+        <item>20 sec</item>
+        <item>25 sec</item>
+        <item>30 sec</item>
+        <item>40 sec</item>
+        <item>50 sec</item>
+        <item>60 sec</item>
+    </string-array>
+    <string name="pref_description_delay">Next picture after %s</string>
+
+    <string name="pref_title_space_between_slides">Spacing</string>
+    <string-array name="pref_space_between_slides_list_titles">
+        <item>No Space</item>
+        <item>Minimal Space</item>
+        <item>One Visible Pixel</item>
+        <item>A Slim Stripe</item>
+        <item>A Medium Stripe</item>
+        <item>A Wide Stripe</item>
+    </string-array>
+    <string name="pref_description_space_between_slides">Leave %s between slides</string>
+
+    <string name="pref_title_recurse">Deep Scan</string>
+    <string name="pref_description_recurse">Recurse into subdirectories</string>
+
+    <string name="pref_title_allow_overscan">Fit Whole Screen</string>
+    <string name="pref_description_allow_overscan">Crop to avoid any black borders</string>
+
+    <string name="pref_title_size_filter">Minimum Picture Size</string>
+    <string-array name="pref_size_filter_list_titles">
+        <item>None</item>
+        <item>Fit This Screen</item>
+        <item>As Large As This Screen</item>
+        <item>As Large As Turned Aspect</item>
+        <item>HDTV 720p</item>
+        <item>HDTV 1080p</item>
+        <item>4K Video</item>
+    </string-array>
+    <string name="pref_description_size_filter">At least %s</string>
+
+    <string name="pref_title_remember_collection">Remember Collection</string>
+    <string name="pref_description_remember_collection_unknown">unknown</string>
+
+    <string name="pref_title_ignore_media_store">Ignore Media Store</string>
+    <string name="pref_description_ignore_media_store">Use raw file system structure</string>
+</resources>

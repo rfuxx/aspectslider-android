@@ -1,0 +1,48 @@
+<!--
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+>
+-->
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/fullscreen_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:keepScreenOn="true"
+        android:layout_weight="10"
+        android:background="#000000"
+        tools:context=".SlideshowActivity"    >
+
+        <SurfaceView
+            android:id="@+id/canvasView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible" />
+
+        <TextView style="?android:textAppearanceLarge"
+            android:id="@+id/no_pictures"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/no_pictures"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:visibility="visible" />
+
+        <TextView style="?android:textAppearanceSmall"
+            android:id="@+id/scanning"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="bottom|center_horizontal"
+            android:layout_marginBottom="4sp"
+            android:text="@string/scanning"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:visibility="visible" />
+
+    </RelativeLayout>
+    <!--
+    </FrameLayout>
+-->

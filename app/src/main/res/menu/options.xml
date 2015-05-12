@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/usepicturesdir" android:title="@string/menu_usepicturesdir" android:checkable="true" />
+    <item android:id="@+id/useextstoragedir" android:title="@string/menu_useextstoragedir" android:checkable="true" />
+    <item android:id="@+id/userootdir" android:title="@string/menu_userootdir" android:checkable="true" />
+    <item android:id="@+id/choosedir" android:title="@string/menu_choosedir" />
+    <item android:id="@+id/allpictures" android:title="@string/menu_allpictures" android:checkable="true" />
+    <item android:id="@+id/choosemediastore" android:title="@string/menu_choosemediastore" />
+    <item android:id="@+id/settings" android:title="@string/menu_settings" />
+</menu>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="no_space">0px</dimen>
+    <dimen name="min_space">1px</dimen>
+    <dimen name="one_visible_pixel">1dip</dimen>
+    <dimen name="slim_stripe">8dip</dimen>
+    <dimen name="medium_stripe">16dip</dimen>
+    <dimen name="wide_stripe">32dip</dimen>
+
+    <dimen name="dir_outer_padding">0sp</dimen>
+    <dimen name="dir_horizontal_spacing">0sp</dimen>
+    <dimen name="dir_column_width_intended">320sp</dimen>
+
+    <dimen name="gallery_outer_padding">0sp</dimen>
+    <dimen name="gallery_horizontal_spacing">0sp</dimen>
+    <dimen name="gallery_icon_size">72sp</dimen>
+    <dimen name="gallery_column_width_intended">266sp</dimen>
+</resources>

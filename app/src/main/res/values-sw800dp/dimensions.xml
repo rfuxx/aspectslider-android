@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="slim_stripe">16dip</dimen>
+    <dimen name="medium_stripe">50dip</dimen>
+    <dimen name="wide_stripe">100dip</dimen>
+
+    <dimen name="gallery_outer_padding">16sp</dimen>
+    <dimen name="gallery_icon_size">256sp</dimen>
+    <dimen name="gallery_column_width_intended">300sp</dimen>
+</resources>

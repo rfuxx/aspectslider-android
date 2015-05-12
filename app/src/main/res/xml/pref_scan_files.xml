@@ -1,0 +1,29 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:key="size_filter"
+        android:title="@string/pref_title_size_filter"
+        android:entries="@array/pref_size_filter_list_titles"
+        android:entryValues="@array/pref_size_filter_list_values"
+        android:positiveButtonText="@null"
+        android:negativeButtonText="@null"
+        android:defaultValue="none"
+        />
+
+    <CheckBoxPreference
+        android:key="ignore_media_store"
+        android:title="@string/pref_title_ignore_media_store"
+        android:summary="@string/pref_description_ignore_media_store"
+        android:defaultValue="false" />
+
+    <CheckBoxPreference
+        android:key="recurse"
+        android:dependency="ignore_media_store"
+        android:title="@string/pref_title_recurse"
+        android:summary="@string/pref_description_recurse"
+        android:defaultValue="true" />
+
+    <CheckBoxPreference
+        android:key="remember_collection"
+        android:title="@string/pref_title_remember_collection"
+        android:defaultValue="true" />
+</PreferenceScreen>
