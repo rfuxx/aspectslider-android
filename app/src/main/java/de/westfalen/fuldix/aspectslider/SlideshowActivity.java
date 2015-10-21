@@ -842,7 +842,7 @@ public class SlideshowActivity extends Activity {
                 paused = !paused;
                 return true;
         }
-        return false;
+        return super.onKeyDown(keyCode, event);
     }
 
     private void doLeft() {
