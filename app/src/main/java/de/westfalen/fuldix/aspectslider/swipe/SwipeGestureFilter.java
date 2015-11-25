@@ -1,6 +1,9 @@
 package de.westfalen.fuldix.aspectslider.swipe;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
+import android.service.dreams.DreamService;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
@@ -20,11 +23,11 @@ public class SwipeGestureFilter extends SimpleOnGestureListener{
     private boolean running      = true;
     private boolean tapIndicator = false;
 
-    private Activity context;
+    private Context context;
     private GestureDetector detector;
     private SwipeGestureListener listener;
 
-    public SwipeGestureFilter(Activity context, SwipeGestureListener sgl) {
+    public SwipeGestureFilter(Context context, SwipeGestureListener sgl) {
 
         this.context = context;
         this.detector = new GestureDetector(context, this);
@@ -136,10 +139,21 @@ public class SwipeGestureFilter extends SimpleOnGestureListener{
 
         if(this.mode == MODE_DYNAMIC){        // we owe an ACTION_UP, so we fake an
             arg.setAction(ACTION_FAKE);      //action which will be converted to an ACTION_UP later.
-            this.context.dispatchTouchEvent(arg);
+            if(context instanceof Activity) {
+                ((Activity) context).dispatchTouchEvent(arg);
+            } else {
+                dispatchTouchEventToDreamService17(arg);
+            }
         }
 
         return false;
+    }
+
+    @TargetApi(17)
+    private void dispatchTouchEventToDreamService17(MotionEvent arg) {
+        if(context instanceof DreamService) {
+            ((DreamService) context).dispatchTouchEvent(arg);
+        }
     }
 
     @Override
