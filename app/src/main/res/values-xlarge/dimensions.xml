@@ -5,6 +5,6 @@
     <dimen name="wide_stripe">100dip</dimen>
 
     <dimen name="gallery_outer_padding">16sp</dimen>
-    <dimen name="gallery_icon_size">256sp</dimen>
-    <dimen name="gallery_column_width_intended">300sp</dimen>
+    <dimen name="gallery_icon_size">192sp</dimen>
+    <dimen name="gallery_column_width_intended">250sp</dimen>
 </resources>

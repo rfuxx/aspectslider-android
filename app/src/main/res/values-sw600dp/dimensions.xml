@@ -10,6 +10,6 @@
 
     <dimen name="gallery_outer_padding">16sp</dimen>
     <dimen name="gallery_horizontal_spacing">8sp</dimen>
-    <dimen name="gallery_icon_size">192sp</dimen>
-    <dimen name="gallery_column_width_intended">266sp</dimen>
+    <dimen name="gallery_icon_size">144sp</dimen>
+    <dimen name="gallery_column_width_intended">200sp</dimen>
 </resources>
