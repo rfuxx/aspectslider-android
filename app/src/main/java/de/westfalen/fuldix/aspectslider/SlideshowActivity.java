@@ -1,55 +1,16 @@
 package de.westfalen.fuldix.aspectslider;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-import java.util.Vector;
-
-import de.westfalen.fuldix.aspectslider.swipe.SwipeGestureFilter;
-import de.westfalen.fuldix.aspectslider.swipe.SwipeGestureListener;
-import de.westfalen.fuldix.aspectslider.uithread.VisibilityRunnable;
-import de.westfalen.fuldix.aspectslider.util.BitmapUtils;
-
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.preference.PreferenceManager;
-import android.provider.MediaStore;
-import android.view.Gravity;
-import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class SlideshowActivity extends Activity {
     private final Slideshow slideshow = new Slideshow(this);
