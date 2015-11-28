@@ -129,20 +129,23 @@ public class Slideshow {
 
     private class InitialHideUIRunnable implements Runnable {
         private Runnable runnable;
+
         public InitialHideUIRunnable(Runnable runnable) {
             this.runnable = runnable;
         }
+
         public void run() {
             runnable.run();
         }
     }
+
     @TargetApi(11)
     private class HideSystemBarAndNavHoneycomb implements Runnable {
         boolean isVisible = true;
 
         public void run() {
             final View contentView = findViewById(R.id.fullscreen_content);
-            if(contentView != null) {
+            if (contentView != null) {
                 contentView.setSystemUiVisibility(
                         View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                                 | View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -153,7 +156,7 @@ public class Slideshow {
                                 | View.SYSTEM_UI_FLAG_LOW_PROFILE
                 );
             }
-            if(context instanceof Activity) {
+            if (context instanceof Activity) {
                 ActionBar ab = ((Activity) context).getActionBar();
                 if (ab != null) {
                     ab.hide();
@@ -270,23 +273,23 @@ public class Slideshow {
     private class SettingsListener implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPref, String key) {
-            if(key.equals(PREF_DELAY)) {
+            if (key.equals(PREF_DELAY)) {
                 applyDelay(sharedPref);
-            } else if(key.equals(PREF_SPACE_BETWEEN_SLIDES)) {
+            } else if (key.equals(PREF_SPACE_BETWEEN_SLIDES)) {
                 applySpaceBetweenSlides(sharedPref);
-            } else if(key.equals(PREF_ALLOW_OVERSCAN)) {
+            } else if (key.equals(PREF_ALLOW_OVERSCAN)) {
                 applyAllowOverscan(sharedPref);
-            } else if(key.equals(PREF_RANDOM)) {
+            } else if (key.equals(PREF_RANDOM)) {
                 applyRandom(sharedPref);
-            } else if(key.equals(PREF_RANDOM_AGAIN)) {
+            } else if (key.equals(PREF_RANDOM_AGAIN)) {
                 applyRandomAgain(sharedPref);
-            } else if(key.equals(PREF_RECURSE)) {
+            } else if (key.equals(PREF_RECURSE)) {
                 applyRecurse(sharedPref);
-            } else if(key.equals(PREF_SIZE_FILTER)) {
+            } else if (key.equals(PREF_SIZE_FILTER)) {
                 applySizeFilter(sharedPref);
-            } else if(key.equals(PREF_REMEMBER_COLLECTION)) {
+            } else if (key.equals(PREF_REMEMBER_COLLECTION)) {
                 applyRememberCollection(sharedPref);
-            } else if(key.equals(PREF_IGNORE_MEDIA_STORE)) {
+            } else if (key.equals(PREF_IGNORE_MEDIA_STORE)) {
                 applyIgnoreMediaStore(sharedPref);
             }
         }
@@ -417,7 +420,7 @@ public class Slideshow {
 
         @Override
         public boolean onDoubleTap(MotionEvent me) {
-            if(context instanceof Activity) {
+            if (context instanceof Activity) {
                 ((Activity) context).openOptionsMenu();
             }
             return true;
@@ -460,11 +463,11 @@ public class Slideshow {
             } else {
                 getFilesFromMediaStore(pictures);
             }
-            if(scanRunning && refusedPics > 0) {
+            if (scanRunning && refusedPics > 0) {
                 showCentralToast(context.getResources().getQuantityString(R.plurals.refused_pictures, refusedPics, refusedPics, getNameOfSizeFilter()));
             }
             scanRunning = false;
-            if(pictures.size() <= 0) {
+            if (pictures.size() <= 0) {
                 uiHandler.post(nopicsShow);
             }
             uiHandler.post(scanningHide);
@@ -762,7 +765,7 @@ public class Slideshow {
 
     public Slideshow(final Context context) {
         this.context = context;
-        if(context instanceof DreamService) {
+        if (isDaydream()) {
             PREF_DELAY = DreamSettingsActivity.PREF_DELAY;
             PREF_SPACE_BETWEEN_SLIDES = DreamSettingsActivity.PREF_SPACE_BETWEEN_SLIDES;
             PREF_ALLOW_OVERSCAN = DreamSettingsActivity.PREF_ALLOW_OVERSCAN;
@@ -1110,7 +1113,7 @@ public class Slideshow {
         swipeDetector = new SwipeGestureFilter(context, swipeListener);
 
         final View contentView = findViewById(R.id.fullscreen_content);
-        if(contentView != null) {
+        if (contentView != null) {
             contentView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -1133,7 +1136,7 @@ public class Slideshow {
         if (sh > 0) {
             screenRatio = (float) sw / (float) sh;
         }
-        if(canvasView != null) {
+        if (canvasView != null) {
             final SurfaceHolder holder = canvasView.getHolder();
             holder.addCallback(new SurfaceHolder.Callback() {
                 @Override
@@ -1182,7 +1185,7 @@ public class Slideshow {
         settingRandomAgain = sharedPref.getBoolean(PREF_RANDOM_AGAIN, false);
         settingRecurse = sharedPref.getBoolean(PREF_RECURSE, true);
         settingSizeFilter = sharedPref.getString(PREF_SIZE_FILTER, Slideshow.PREF_SIZEFILTER_NONE);
-        settingRememberCollection = context instanceof DreamService || sharedPref.getBoolean(PREF_REMEMBER_COLLECTION, false);
+        settingRememberCollection = isDaydream() || sharedPref.getBoolean(PREF_REMEMBER_COLLECTION, false);
         if (settingRememberCollection) {
             path = new File(sharedPref.getString(PREF_DIRPATH, ""));
             mediaUri = Uri.parse(sharedPref.getString(PREF_MEDIA_URI, MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString()));
@@ -1228,7 +1231,7 @@ public class Slideshow {
 
     private boolean acceptFileSize(PicInfo pic) {
         boolean accepted = acceptFileSizeInternalChecking(pic);
-        if(!accepted) {
+        if (!accepted) {
             refusedPics++;
         }
         return accepted;
@@ -1322,19 +1325,19 @@ public class Slideshow {
     }
 
     private void getFilesFromMediaStore(Vector<PicInfo> result) {
-        final String[] columnsV16 = { MediaStore.Images.Media.DATA, MediaStore.Images.Media.WIDTH, MediaStore.Images.Media.HEIGHT, MediaStore.Images.Media.ORIENTATION };
-        final String[] columnsOld = { MediaStore.Images.Media.DATA };
+        final String[] columnsV16 = {MediaStore.Images.Media.DATA, MediaStore.Images.Media.WIDTH, MediaStore.Images.Media.HEIGHT, MediaStore.Images.Media.ORIENTATION};
+        final String[] columnsOld = {MediaStore.Images.Media.DATA};
         String[] columns = (Build.VERSION.SDK_INT >= 16) ? columnsV16 : columnsOld;
         String sort = settingRandom ? null : MediaStore.MediaColumns.DATA;  // is then compatible with sort()ing the PicInfos
         Cursor cursor = context.getContentResolver().query(mediaUri, columns, mediaSelection, null, sort);
-        if(cursor != null) {
-            if(cursor.moveToFirst()) {
-                while(!cursor.isAfterLast()) {
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                while (!cursor.isAfterLast()) {
                     String fileName = cursor.getString(0);
                     int width;
                     int height;
                     int orientation;
-                    if(Build.VERSION.SDK_INT >= 16) {
+                    if (Build.VERSION.SDK_INT >= 16) {
                         width = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.WIDTH));
                         height = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.HEIGHT));
                         orientation = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION));
@@ -1421,17 +1424,17 @@ public class Slideshow {
             }
             case R.id.settings:
                 Intent intent = new Intent(activity, SettingsActivity.class);
-                if(path != null) {
+                if (path != null) {
                     intent.putExtra(SettingsActivity.REMEMBER_COLLECTION_DESCRIPTION_DIR, path.getAbsolutePath());
                 } else {
                     intent.putExtra(SettingsActivity.REMEMBER_COLLECTION_DESCRIPTION_DIR, context.getString(R.string.pref_description_remember_collection_unknown));
                 }
-                if(mediaSelection == null || mediaSelection.equals("")) {
+                if (mediaSelection == null || mediaSelection.equals("")) {
                     intent.putExtra(SettingsActivity.REMEMBER_COLLECTION_DESCRIPTION_SELECTION, context.getString(R.string.menu_allpictures));
                 } else {
-                    String[] columns = { "distinct " + MediaStore.Images.Media.BUCKET_DISPLAY_NAME };
+                    String[] columns = {"distinct " + MediaStore.Images.Media.BUCKET_DISPLAY_NAME};
                     Cursor c = context.getContentResolver().query(mediaUri, columns, mediaSelection, null, null);
-                    if(c != null && c.moveToNext()) {
+                    if (c != null && c.moveToNext()) {
                         intent.putExtra(SettingsActivity.REMEMBER_COLLECTION_DESCRIPTION_SELECTION, c.getString(c.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)));
                         c.close();
                     } else {
@@ -1452,11 +1455,11 @@ public class Slideshow {
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
-            switch(requestCode) {
+            switch (requestCode) {
                 case DirectorySelector.SELECT_DIRECTORY: {
                     Bundle extras = data.getExtras();
                     String fileName = extras.getString(DirectorySelector.RETURN_DIRECTORY);
-                    if(fileName != null) {
+                    if (fileName != null) {
                         path = new File(fileName);
                     }
                     break;
@@ -1478,7 +1481,7 @@ public class Slideshow {
     }
 
     private void adjustOptionsMenu() {
-        if(menu != null) {
+        if (menu != null) {
             menu.clear();
             MenuInflater inflater = ((Activity) context).getMenuInflater();
             inflater.inflate(R.menu.options, menu);
@@ -1510,7 +1513,7 @@ public class Slideshow {
             MenuItem usepicturesdir = menu.findItem(R.id.usepicturesdir);
             MenuItem useextstoragedir = menu.findItem(R.id.useextstoragedir);
             MenuItem userootdir = menu.findItem(R.id.userootdir);
-            if(path == null) {
+            if (path == null) {
                 usepicturesdir.setChecked(false);
                 useextstoragedir.setChecked(false);
                 userootdir.setChecked(false);
@@ -1546,7 +1549,7 @@ public class Slideshow {
     private void showCentralToast(String text) {
         Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
         View textView = toast.getView().findViewById(android.R.id.message);
-        if(textView instanceof TextView) {
+        if (textView instanceof TextView) {
             ((TextView) textView).setGravity(Gravity.CENTER);
         }
         toast.show();
@@ -1556,16 +1559,16 @@ public class Slideshow {
         Resources res = context.getResources();
         String[] filterIds = res.getStringArray(R.array.pref_size_filter_list_values);
         String[] filterNames = res.getStringArray(R.array.pref_size_filter_list_titles);
-        int filter = filterIds.length -1;
-        while(filter >= 0) {
-            if(settingSizeFilter.equals(filterIds[filter])) {
+        int filter = filterIds.length - 1;
+        while (filter >= 0) {
+            if (settingSizeFilter.equals(filterIds[filter])) {
                 break;
             }
             filter--;
         }
         String filterText;
-        if(filter >= 0) {
-            filterText = filterNames [filter];
+        if (filter >= 0) {
+            filterText = filterNames[filter];
         } else {
             filterText = context.getString(R.string.refused_filter_name_when_not_availabe);
         }
@@ -1585,7 +1588,7 @@ public class Slideshow {
 
     @TargetApi(11)
     private void doActionBarMenuUIVisibility() {
-        if(context instanceof Activity) {
+        if (context instanceof Activity) {
             ActionBar ab = ((Activity) context).getActionBar();
             if (ab != null) {
                 ab.addOnMenuVisibilityListener(new ActionBar.OnMenuVisibilityListener() {
@@ -1606,7 +1609,7 @@ public class Slideshow {
     private void showTouchInSystemBarHoneycomb() {
         uiHandler.removeCallbacks(hideSystemBarAndNavHoneycomb);
         final View contentView = findViewById(R.id.fullscreen_content);
-        if(contentView != null) {
+        if (contentView != null) {
             contentView.setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                             | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -1615,7 +1618,7 @@ public class Slideshow {
                             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             );
         }
-        if(context instanceof Activity) {
+        if (context instanceof Activity) {
             ActionBar ab = ((Activity) context).getActionBar();
             if (ab != null) {
                 ab.show();
@@ -1639,9 +1642,9 @@ public class Slideshow {
     private void useRealSize() {
         final Point realSize = new Point();
         final WindowManager windowManager;
-        if(context instanceof Activity) {
+        if (context instanceof Activity) {
             windowManager = ((Activity) context).getWindowManager();
-        } else if(context instanceof DreamService) {
+        } else if (isDaydream()) {
             windowManager = ((DreamService) context).getWindowManager();
         } else {
             System.err.println("useRealSize neither Activity nor DreamService");
@@ -1653,7 +1656,7 @@ public class Slideshow {
     }
 
     private View findViewById(final int id) {
-        if(context instanceof Activity) {
+        if (context instanceof Activity) {
             return ((Activity) context).findViewById(id);
         } else {
             return findViewById17(id);
@@ -1662,10 +1665,23 @@ public class Slideshow {
 
     @TargetApi(17)
     private View findViewById17(final int id) {
-        if(context instanceof DreamService) {
+        if (context instanceof DreamService) {
             return ((DreamService) context).findViewById(id);
         } else {
             return null;
         }
+    }
+
+    private boolean isDaydream() {
+        if (Build.VERSION.SDK_INT >= 17) {
+            return isDaydream17();
+        } else {
+            return false;
+        }
+    }
+
+    @TargetApi(17)
+    private boolean isDaydream17() {
+        return context instanceof DreamService;
     }
 }
