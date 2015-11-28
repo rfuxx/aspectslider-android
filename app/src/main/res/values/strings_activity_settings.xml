@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_activity_settings">Settings</string>
+    <string name="title_activity_dream_settings">AspectSlider Daydream</string>
 
-    <!-- Strings related to Settings -->
-
+    <string name="pref_header_selection">Pictures</string>
     <string name="pref_header_slide_show">Slides</string>
-    <string name="pref_header_scan_files">Scan Pictures</string>
+    <string name="pref_header_scan_files">Scan Options</string>
+
+    <string name="pref_select_gallery">Select Gallery</string>
+    <string name="pref_select_dir">Choose Directory</string>
 
     <string name="pref_title_random">Shuffle</string>
     <string name="pref_description_random">Show in random order</string>

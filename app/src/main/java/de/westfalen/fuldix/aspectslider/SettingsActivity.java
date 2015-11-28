@@ -31,6 +31,10 @@ public class SettingsActivity extends PreferenceActivity {
     public static final String PREF_REMEMBER_COLLECTION = "remember_collection";
     public static final String PREF_IGNORE_MEDIA_STORE = "ignore_media_store";
 
+    public static final String PREF_MEDIA_URI = "media_uri";
+    public static final String PREF_DIRPATH = "dirpath";
+    public static final String PREF_MEDIA_SELECTION = "media_selection";
+
     private String rememberDirDescription;
     private String rememberSelectionDescription;
 

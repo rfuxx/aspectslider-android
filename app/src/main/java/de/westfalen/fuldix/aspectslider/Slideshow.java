@@ -61,11 +61,23 @@ public class Slideshow {
     public static final String PREF_SIZEFILTER_HD720P = "hd720p";
     public static final String PREF_SIZEFILTER_HD1080P = "hd1080p";
     public static final String PREF_SIZEFILTER_VIDEO4K = "video4k";
-    static final String PREF_MEDIA_URI = "media_uri";
-    static final String PREF_DIRPATH = "dirpath";
-    static final String PREF_MEDIA_SELECTION = "media_selection";
-    static final int constAnimTimeToSlide = 400;
-    static final int constAnimFps = 30;
+
+    private static final int constAnimTimeToSlide = 400;
+    private static final int constAnimFps = 30;
+
+    private final String PREF_DELAY;
+    private final String PREF_SPACE_BETWEEN_SLIDES;
+    private final String PREF_ALLOW_OVERSCAN;
+    private final String PREF_RANDOM;
+    private final String PREF_RANDOM_AGAIN;
+    private final String PREF_RECURSE;
+    private final String PREF_SIZE_FILTER;
+    private final String PREF_REMEMBER_COLLECTION;
+    private final String PREF_IGNORE_MEDIA_STORE;
+
+    private final String PREF_MEDIA_URI;
+    private final String PREF_DIRPATH;
+    private final String PREF_MEDIA_SELECTION;
 
     private final Context context;
     private int settingNextSlideAfter = 5000;
@@ -258,39 +270,29 @@ public class Slideshow {
     private class SettingsListener implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPref, String key) {
-            switch (key) {
-                case SettingsActivity.PREF_DELAY:
-                    applyDelay(sharedPref);
-                    break;
-                case SettingsActivity.PREF_SPACE_BETWEEN_SLIDES:
-                    applySpaceBetweenSlides(sharedPref);
-                    break;
-                case SettingsActivity.PREF_ALLOW_OVERSCAN:
-                    applyAllowOverscan(sharedPref);
-                    break;
-                case SettingsActivity.PREF_RANDOM:
-                    applyRandom(sharedPref);
-                    break;
-                case SettingsActivity.PREF_RANDOM_AGAIN:
-                    applyRandomAgain(sharedPref);
-                    break;
-                case SettingsActivity.PREF_RECURSE:
-                    applyRecurse(sharedPref);
-                    break;
-                case SettingsActivity.PREF_SIZE_FILTER:
-                    applySizeFilter(sharedPref);
-                    break;
-                case SettingsActivity.PREF_REMEMBER_COLLECTION:
-                    applyRememberCollection(sharedPref);
-                    break;
-                case SettingsActivity.PREF_IGNORE_MEDIA_STORE:
-                    applyIgnoreMediaStore(sharedPref);
-                    break;
+            if(key.equals(PREF_DELAY)) {
+                applyDelay(sharedPref);
+            } else if(key.equals(PREF_SPACE_BETWEEN_SLIDES)) {
+                applySpaceBetweenSlides(sharedPref);
+            } else if(key.equals(PREF_ALLOW_OVERSCAN)) {
+                applyAllowOverscan(sharedPref);
+            } else if(key.equals(PREF_RANDOM)) {
+                applyRandom(sharedPref);
+            } else if(key.equals(PREF_RANDOM_AGAIN)) {
+                applyRandomAgain(sharedPref);
+            } else if(key.equals(PREF_RECURSE)) {
+                applyRecurse(sharedPref);
+            } else if(key.equals(PREF_SIZE_FILTER)) {
+                applySizeFilter(sharedPref);
+            } else if(key.equals(PREF_REMEMBER_COLLECTION)) {
+                applyRememberCollection(sharedPref);
+            } else if(key.equals(PREF_IGNORE_MEDIA_STORE)) {
+                applyIgnoreMediaStore(sharedPref);
             }
         }
 
         void applyDelay(SharedPreferences sharedPref) {
-            String delayStr = sharedPref.getString(SettingsActivity.PREF_DELAY, "5000");
+            String delayStr = sharedPref.getString(PREF_DELAY, "5000");
             try {
                 int delayVal = Integer.parseInt(delayStr);
                 if (delayVal < 1000) {
@@ -303,7 +305,7 @@ public class Slideshow {
         }
 
         void applySpaceBetweenSlides(SharedPreferences sharedPref) {
-            String spaceStr = sharedPref.getString(SettingsActivity.PREF_SPACE_BETWEEN_SLIDES, "min_space");
+            String spaceStr = sharedPref.getString(PREF_SPACE_BETWEEN_SLIDES, "min_space");
             Resources res = context.getResources();
             int dim = res.getIdentifier(spaceStr, "dimen", context.getPackageName());
             if (dim != 0) {
@@ -318,12 +320,12 @@ public class Slideshow {
         }
 
         void applyAllowOverscan(SharedPreferences sharedPref) {
-            settingAllowOverscan = sharedPref.getBoolean(SettingsActivity.PREF_ALLOW_OVERSCAN, false);
+            settingAllowOverscan = sharedPref.getBoolean(PREF_ALLOW_OVERSCAN, false);
             slideshowHandler.postAtFrontOfQueue(slideshowJustRedrawRunnable);
         }
 
         void applyRandom(SharedPreferences sharedPref) {
-            settingRandom = sharedPref.getBoolean(SettingsActivity.PREF_RANDOM, false);
+            settingRandom = sharedPref.getBoolean(PREF_RANDOM, false);
             synchronized (pictures) {
                 if (settingRandom) {
                     Collections.shuffle(pictures, random);
@@ -335,30 +337,30 @@ public class Slideshow {
         }
 
         void applyRandomAgain(SharedPreferences sharedPref) {
-            settingRandomAgain = sharedPref.getBoolean(SettingsActivity.PREF_RANDOM_AGAIN, false);
+            settingRandomAgain = sharedPref.getBoolean(PREF_RANDOM_AGAIN, false);
         }
 
         void applyRecurse(SharedPreferences sharedPref) {
-            settingRecurse = sharedPref.getBoolean(SettingsActivity.PREF_RECURSE, false);
+            settingRecurse = sharedPref.getBoolean(PREF_RECURSE, false);
             fileHandler.post(slideshowEndRunnable);
             scanRunning = false;
             fileHandler.post(picFinderRunnable);
         }
 
         void applySizeFilter(SharedPreferences sharedPref) {
-            settingSizeFilter = sharedPref.getString(SettingsActivity.PREF_SIZE_FILTER, Slideshow.PREF_SIZEFILTER_NONE);
+            settingSizeFilter = sharedPref.getString(PREF_SIZE_FILTER, Slideshow.PREF_SIZEFILTER_NONE);
             fileHandler.post(slideshowEndRunnable);
             scanRunning = false;
             fileHandler.post(picFinderRunnable);
         }
 
         void applyRememberCollection(SharedPreferences sharedPref) {
-            settingRememberCollection = sharedPref.getBoolean(SettingsActivity.PREF_REMEMBER_COLLECTION, false);
+            settingRememberCollection = sharedPref.getBoolean(PREF_REMEMBER_COLLECTION, false);
             saveRememberCollection();
         }
 
         void applyIgnoreMediaStore(SharedPreferences sharedPref) {
-            settingIgnoreMediaStore = sharedPref.getBoolean(SettingsActivity.PREF_IGNORE_MEDIA_STORE, false);
+            settingIgnoreMediaStore = sharedPref.getBoolean(PREF_IGNORE_MEDIA_STORE, false);
             adjustOptionsMenu();
             fileHandler.post(slideshowEndRunnable);
             scanRunning = false;
@@ -760,6 +762,33 @@ public class Slideshow {
 
     public Slideshow(final Context context) {
         this.context = context;
+        if(context instanceof DreamService) {
+            PREF_DELAY = DreamSettingsActivity.PREF_DELAY;
+            PREF_SPACE_BETWEEN_SLIDES = DreamSettingsActivity.PREF_SPACE_BETWEEN_SLIDES;
+            PREF_ALLOW_OVERSCAN = DreamSettingsActivity.PREF_ALLOW_OVERSCAN;
+            PREF_RANDOM = DreamSettingsActivity.PREF_RANDOM;
+            PREF_RANDOM_AGAIN = DreamSettingsActivity.PREF_RANDOM_AGAIN;
+            PREF_RECURSE = DreamSettingsActivity.PREF_RECURSE;
+            PREF_SIZE_FILTER = DreamSettingsActivity.PREF_SIZE_FILTER;
+            PREF_REMEMBER_COLLECTION = DreamSettingsActivity.PREF_REMEMBER_COLLECTION;
+            PREF_IGNORE_MEDIA_STORE = DreamSettingsActivity.PREF_IGNORE_MEDIA_STORE;
+            PREF_MEDIA_URI = DreamSettingsActivity.PREF_MEDIA_URI;
+            PREF_DIRPATH = DreamSettingsActivity.PREF_DIRPATH;
+            PREF_MEDIA_SELECTION = DreamSettingsActivity.PREF_MEDIA_SELECTION;
+        } else {
+            PREF_DELAY = SettingsActivity.PREF_DELAY;
+            PREF_SPACE_BETWEEN_SLIDES = SettingsActivity.PREF_SPACE_BETWEEN_SLIDES;
+            PREF_ALLOW_OVERSCAN = SettingsActivity.PREF_ALLOW_OVERSCAN;
+            PREF_RANDOM = SettingsActivity.PREF_RANDOM;
+            PREF_RANDOM_AGAIN = SettingsActivity.PREF_RANDOM_AGAIN;
+            PREF_RECURSE = SettingsActivity.PREF_RECURSE;
+            PREF_SIZE_FILTER = SettingsActivity.PREF_SIZE_FILTER;
+            PREF_REMEMBER_COLLECTION = SettingsActivity.PREF_REMEMBER_COLLECTION;
+            PREF_IGNORE_MEDIA_STORE = SettingsActivity.PREF_IGNORE_MEDIA_STORE;
+            PREF_MEDIA_URI = SettingsActivity.PREF_MEDIA_URI;
+            PREF_DIRPATH = SettingsActivity.PREF_DIRPATH;
+            PREF_MEDIA_SELECTION = SettingsActivity.PREF_MEDIA_SELECTION;
+        }
     }
 
     private boolean onMoveXY(float xMovement, float yMovement) {
@@ -783,6 +812,7 @@ public class Slideshow {
         return onMoveXY(event.getX(), event.getY());
     }
 
+    @TargetApi(12)
     public boolean onGenericMotionEvent(MotionEvent event) {
         switch (event.getSource()) {
             case InputDevice.SOURCE_GAMEPAD:
@@ -1147,18 +1177,18 @@ public class Slideshow {
         sharedPref.registerOnSharedPreferenceChangeListener(settingsListener);
         settingsListener.applyDelay(sharedPref);
         settingsListener.applySpaceBetweenSlides(sharedPref);
-        settingAllowOverscan = sharedPref.getBoolean(SettingsActivity.PREF_ALLOW_OVERSCAN, false);
-        settingRandom = sharedPref.getBoolean(SettingsActivity.PREF_RANDOM, false);
-        settingRandomAgain = sharedPref.getBoolean(SettingsActivity.PREF_RANDOM_AGAIN, false);
-        settingRecurse = sharedPref.getBoolean(SettingsActivity.PREF_RECURSE, true);
-        settingSizeFilter = sharedPref.getString(SettingsActivity.PREF_SIZE_FILTER, Slideshow.PREF_SIZEFILTER_NONE);
-        settingRememberCollection = sharedPref.getBoolean(SettingsActivity.PREF_REMEMBER_COLLECTION, false);
+        settingAllowOverscan = sharedPref.getBoolean(PREF_ALLOW_OVERSCAN, false);
+        settingRandom = sharedPref.getBoolean(PREF_RANDOM, false);
+        settingRandomAgain = sharedPref.getBoolean(PREF_RANDOM_AGAIN, false);
+        settingRecurse = sharedPref.getBoolean(PREF_RECURSE, true);
+        settingSizeFilter = sharedPref.getString(PREF_SIZE_FILTER, Slideshow.PREF_SIZEFILTER_NONE);
+        settingRememberCollection = context instanceof DreamService || sharedPref.getBoolean(PREF_REMEMBER_COLLECTION, false);
         if (settingRememberCollection) {
-            path = new File(sharedPref.getString(Slideshow.PREF_DIRPATH, ""));
-            mediaUri = Uri.parse(sharedPref.getString(Slideshow.PREF_MEDIA_URI, MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString()));
-            mediaSelection = sharedPref.getString(Slideshow.PREF_MEDIA_SELECTION, null);
+            path = new File(sharedPref.getString(PREF_DIRPATH, ""));
+            mediaUri = Uri.parse(sharedPref.getString(PREF_MEDIA_URI, MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString()));
+            mediaSelection = sharedPref.getString(PREF_MEDIA_SELECTION, null);
         }
-        settingIgnoreMediaStore = sharedPref.getBoolean(SettingsActivity.PREF_IGNORE_MEDIA_STORE, false);
+        settingIgnoreMediaStore = sharedPref.getBoolean(PREF_IGNORE_MEDIA_STORE, false);
         adjustOptionsMenu();
     }
 
@@ -1502,13 +1532,13 @@ public class Slideshow {
     private void saveRememberCollection() {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
         if (settingRememberCollection) {
-            editor.putString(Slideshow.PREF_DIRPATH, path.getAbsolutePath());
-            editor.putString(Slideshow.PREF_MEDIA_URI, mediaUri.toString());
-            editor.putString(Slideshow.PREF_MEDIA_SELECTION, mediaSelection);
+            editor.putString(PREF_DIRPATH, path.getAbsolutePath());
+            editor.putString(PREF_MEDIA_URI, mediaUri.toString());
+            editor.putString(PREF_MEDIA_SELECTION, mediaSelection);
         } else {
-            editor.remove(Slideshow.PREF_DIRPATH);
-            editor.remove(Slideshow.PREF_MEDIA_URI);
-            editor.remove(Slideshow.PREF_MEDIA_SELECTION);
+            editor.remove(PREF_DIRPATH);
+            editor.remove(PREF_MEDIA_URI);
+            editor.remove(PREF_MEDIA_SELECTION);
         }
         editor.commit();
     }

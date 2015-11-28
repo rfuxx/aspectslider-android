@@ -45,11 +45,13 @@
                 <action android:name="android.service.dreams.DreamService" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-<!--
             <meta-data
                 android:name="android.service.dream"
-                android:resource="@xml/slideshow_dream" />
-                -->
+                android:resource="@xml/dream_slideshow" />
         </service>
+        <activity
+            android:name="de.westfalen.fuldix.aspectslider.DreamSettingsActivity"
+            android:label="@string/title_activity_dream_settings" >
+        </activity>
     </application>
 </manifest>

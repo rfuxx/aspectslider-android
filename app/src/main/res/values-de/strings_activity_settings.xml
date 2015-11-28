@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title_activity_settings">Einstellungen</string>
+    <string name="title_activity_dream_settings">AspectSlider Daydream</string>
 
+    <string name="pref_header_selection">Bilder</string>
     <string name="pref_header_slide_show">Anzeige</string>
-    <string name="pref_header_scan_files">Bilder finden</string>
+    <string name="pref_header_scan_files">Suchoptionen</string>
+
+    <string name="pref_select_gallery">Galerie wählen</string>
+    <string name="pref_select_dir">Verzeichnis wählen</string>
 
     <string name="pref_title_random">Zufällig</string>
     <string name="pref_description_random">Anzeige in zufälliger Reihenfolge</string>

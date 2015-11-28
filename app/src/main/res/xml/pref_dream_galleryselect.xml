@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<CheckBoxPreference android:title="@string/menu_allpictures"
+    android:key="dream_all_gallery_pictures"
+    android:persistent="false"
+    />
+<Preference android:title="@string/pref_select_gallery"
+    android:key="dream_media_selection"
+    />
+</PreferenceScreen>

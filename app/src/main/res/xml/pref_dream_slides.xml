@@ -1,0 +1,42 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:key="dream_random"
+        android:title="@string/pref_title_random"
+        android:summary="@string/pref_description_random"
+        android:defaultValue="false" />
+
+    <CheckBoxPreference
+        android:key="dream_random_again"
+        android:title="@string/pref_title_random_again"
+        android:summary="@string/pref_description_random_again"
+        android:dependency="dream_random"
+        android:defaultValue="false" />
+
+    <ListPreference
+        android:key="dream_delay"
+        android:title="@string/pref_title_delay"
+        android:entries="@array/pref_delay_list_titles"
+        android:entryValues="@array/pref_delay_list_values"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:defaultValue="5000"
+        />
+
+    <ListPreference
+        android:key="dream_space_between_slides"
+        android:title="@string/pref_title_space_between_slides"
+        android:entries="@array/pref_space_between_slides_list_titles"
+        android:entryValues="@array/pref_space_between_slides_list_values"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:defaultValue="min_space"
+        />
+
+    <CheckBoxPreference
+        android:key="dream_allow_overscan"
+        android:title="@string/pref_title_allow_overscan"
+        android:summary="@string/pref_description_allow_overscan"
+        android:defaultValue="false" />
+
+</PreferenceScreen>

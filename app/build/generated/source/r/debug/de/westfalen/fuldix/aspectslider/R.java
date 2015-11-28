@@ -117,21 +117,25 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int pref_description_size_filter=0x7f070017;
         public static final int pref_description_space_between_slides=0x7f070018;
         public static final int pref_header_scan_files=0x7f070019;
-        public static final int pref_header_slide_show=0x7f07001a;
-        public static final int pref_title_allow_overscan=0x7f07001b;
-        public static final int pref_title_delay=0x7f07001c;
-        public static final int pref_title_ignore_media_store=0x7f07001d;
-        public static final int pref_title_random=0x7f07001e;
-        public static final int pref_title_random_again=0x7f07001f;
-        public static final int pref_title_recurse=0x7f070020;
-        public static final int pref_title_remember_collection=0x7f070021;
-        public static final int pref_title_size_filter=0x7f070022;
-        public static final int pref_title_space_between_slides=0x7f070023;
-        public static final int refused_filter_name_when_not_availabe=0x7f070024;
-        public static final int scanning=0x7f070025;
-        public static final int select_gallery=0x7f070026;
-        public static final int select_gallery_no_media=0x7f070027;
-        public static final int title_activity_settings=0x7f070028;
+        public static final int pref_header_selection=0x7f07001a;
+        public static final int pref_header_slide_show=0x7f07001b;
+        public static final int pref_select_dir=0x7f07001c;
+        public static final int pref_select_gallery=0x7f07001d;
+        public static final int pref_title_allow_overscan=0x7f07001e;
+        public static final int pref_title_delay=0x7f07001f;
+        public static final int pref_title_ignore_media_store=0x7f070020;
+        public static final int pref_title_random=0x7f070021;
+        public static final int pref_title_random_again=0x7f070022;
+        public static final int pref_title_recurse=0x7f070023;
+        public static final int pref_title_remember_collection=0x7f070024;
+        public static final int pref_title_size_filter=0x7f070025;
+        public static final int pref_title_space_between_slides=0x7f070026;
+        public static final int refused_filter_name_when_not_availabe=0x7f070027;
+        public static final int scanning=0x7f070028;
+        public static final int select_gallery=0x7f070029;
+        public static final int select_gallery_no_media=0x7f07002a;
+        public static final int title_activity_dream_settings=0x7f07002b;
+        public static final int title_activity_settings=0x7f07002c;
     }
     public static final class style {
         /**  API 11 theme customizations can go here. 
@@ -153,10 +157,16 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int FullscreenTheme=0x7f090002;
     }
     public static final class xml {
-        public static final int pref_fakeroot=0x7f040000;
-        public static final int pref_headers=0x7f040001;
-        public static final int pref_scan_files=0x7f040002;
-        public static final int pref_slides=0x7f040003;
+        public static final int dream_slideshow=0x7f040000;
+        public static final int pref_dream_fileselect=0x7f040001;
+        public static final int pref_dream_galleryselect=0x7f040002;
+        public static final int pref_dream_headers=0x7f040003;
+        public static final int pref_dream_scan_files=0x7f040004;
+        public static final int pref_dream_slides=0x7f040005;
+        public static final int pref_fakeroot=0x7f040006;
+        public static final int pref_headers=0x7f040007;
+        public static final int pref_scan_files=0x7f040008;
+        public static final int pref_slides=0x7f040009;
     }
     public static final class styleable {
         /** Attributes that can be used with a ButtonBarContainerTheme.
