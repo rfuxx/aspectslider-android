@@ -3,6 +3,7 @@ package de.westfalen.fuldix.aspectslider;
 import android.annotation.TargetApi;
 import android.content.res.Configuration;
 import android.service.dreams.DreamService;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 @TargetApi(17)
@@ -30,12 +31,6 @@ public class SlideshowDream extends DreamService {
         slideshow.onPause();
     }
 
-/*
-    @Override
-    public void onDetachedFromWindow() {
-    }
-*/
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -46,5 +41,28 @@ public class SlideshowDream extends DreamService {
     public boolean dispatchTouchEvent(MotionEvent me) {
         slideshow.dispatchTouchEvent(me);
         return super.dispatchTouchEvent(me);
+    }
+
+    @Override
+    public boolean dispatchTrackballEvent(MotionEvent event) {
+        boolean scons = super.dispatchTrackballEvent(event);
+        boolean cons = slideshow.onTrackballEvent(event);
+        return scons || cons;
+    }
+
+    @Override
+    public boolean dispatchGenericMotionEvent (MotionEvent event) {
+        boolean scons = super.dispatchGenericMotionEvent(event);
+        boolean cons = slideshow.onGenericMotionEvent(event);
+        return scons || cons;
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if(event.getAction() == KeyEvent.ACTION_DOWN) {
+            return slideshow.onKeyDown(event.getKeyCode(), event);
+        } else {
+            return super.dispatchKeyEvent(event);
+        }
     }
 }
