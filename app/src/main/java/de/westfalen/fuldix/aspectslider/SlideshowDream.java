@@ -60,7 +60,7 @@ public class SlideshowDream extends DreamService {
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if(event.getAction() == KeyEvent.ACTION_DOWN) {
-            return slideshow.onKeyDown(event.getKeyCode(), event);
+            return slideshow.onKeyDown(event.getKeyCode());
         } else {
             return super.dispatchKeyEvent(event);
         }

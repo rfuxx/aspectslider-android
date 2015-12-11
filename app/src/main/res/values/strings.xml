@@ -3,6 +3,7 @@
 
     <string name="app_name">Aspect Slider</string>
     <string name="no_pictures">No Pictures</string>
+    <string name="cannot_load">Failed to load %s</string>
     <plurals name="refused_pictures">
         <item quantity="one">One picture is not shown due to size filter %2$s</item>
         <item quantity="other">%1$d pictures are not shown due to size filter %2$s</item>
@@ -25,7 +26,7 @@
     <string name="dir_selectthis">Select &#9654; %s</string>
     <string name="dir_up">&#8679; Up</string>
     <string name="dir_root">&lt;root&gt;</string>
-    <string name="dir_info_format_files_and_subdirs" formatted="false">%s, %s</string>
+    <string name="dir_info_format_files_and_subdirs">%1$s, %2$s</string>
     <plurals name="dir_info_format_files">
         <item quantity="one">one file</item>
         <item quantity="other">%d files</item>

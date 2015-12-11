@@ -60,42 +60,44 @@ public class SlideshowActivity extends Activity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        return slideshow.onCreateOptionsMenu(menu);
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        slideshow.onCreateOptionsMenu(menu);
+        return true;
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(final Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        return slideshow.onPrepareOptionsMenu(menu);
+        slideshow.onPrepareOptionsMenu(menu);
+        return true;
     }
 
     @Override
-    public void onOptionsMenuClosed(Menu menu) {
+    public void onOptionsMenuClosed(final Menu menu) {
         super.onOptionsMenuClosed(menu);
-        slideshow.onOptionsMenuClosed(menu);
+        slideshow.onOptionsMenuClosed();
     }
 
     @Override
-    public boolean onTrackballEvent(MotionEvent event) {
+    public boolean onTrackballEvent(final MotionEvent event) {
         return slideshow.onTrackballEvent(event);
     }
 
     @TargetApi(12)
     @Override
-    public boolean onGenericMotionEvent(MotionEvent event) {
+    public boolean onGenericMotionEvent(final MotionEvent event) {
         return slideshow.onGenericMotionEvent(event);
     }
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent me) {
+    public boolean dispatchTouchEvent(final MotionEvent me) {
         slideshow.dispatchTouchEvent(me);
         return super.dispatchTouchEvent(me);
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        boolean ret = slideshow.onKeyDown(keyCode, event);
+    public boolean onKeyDown(final int keyCode, final KeyEvent event) {
+        final boolean ret = slideshow.onKeyDown(keyCode);
         return ret || super.onKeyDown(keyCode, event);
     }
 }

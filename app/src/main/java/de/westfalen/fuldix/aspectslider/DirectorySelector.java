@@ -1,10 +1,5 @@
 package de.westfalen.fuldix.aspectslider;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.util.ArrayList;
-import java.util.Collections;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -24,6 +19,11 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class DirectorySelector extends Activity {
 
 	public static final String START_DIR = "startDir";
@@ -40,7 +40,7 @@ public class DirectorySelector extends Activity {
 		File file;
 		int subdirs;
 		int files;
-		protected Entry() {
+		Entry() {
 		}
 		public Entry(File file) {
 			this.file = file;
@@ -139,7 +139,6 @@ public class DirectorySelector extends Activity {
         });
         if (entries.size() > 0) {
         	Collections.sort(entries);
-        } else {
         }
 		if(allowUp) {
 			File parent = dir.getParentFile();
@@ -195,7 +194,7 @@ public class DirectorySelector extends Activity {
                             if (subdirStr != null) {
                                 dirinfoView.setText(subdirStr);
                             } else {
-                                dirinfoView.setText(String.format(getString(R.string.dir_info_format_empty)));
+                                dirinfoView.setText(getString(R.string.dir_info_format_empty));
                                 isempty = true;
                             }
                         }

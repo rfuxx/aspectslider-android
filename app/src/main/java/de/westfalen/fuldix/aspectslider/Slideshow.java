@@ -128,7 +128,7 @@ public class Slideshow {
     private HideSystemBarAndNavHoneycomb hideSystemBarAndNavHoneycomb;
 
     private class InitialHideUIRunnable implements Runnable {
-        private Runnable runnable;
+        final private Runnable runnable;
 
         public InitialHideUIRunnable(Runnable runnable) {
             this.runnable = runnable;
@@ -383,7 +383,6 @@ public class Slideshow {
             if (sw > 0 && sh > 0) {
                 synchronized (pic) {
                     if (pic.bitmap == null || pic.bitmap.isRecycled()) {
-                        System.out.println("preload: " + pic.picFile);
                         pic.loadBitmap(sw, sh);
                         if (pic.bitmap != null) {
                             synchronized (oldBitmaps) {
@@ -419,11 +418,10 @@ public class Slideshow {
         }
 
         @Override
-        public boolean onDoubleTap(MotionEvent me) {
+        public void onDoubleTap() {
             if (context instanceof Activity) {
                 ((Activity) context).openOptionsMenu();
             }
-            return true;
         }
     };
 
@@ -441,7 +439,7 @@ public class Slideshow {
                     if (Build.VERSION.SDK_INT >= 8) {
                         path = getExternalPicturesDir();
                         getFilesFromDir(path, pictures);
-                        if (pictures.size() == 0) {
+                        if (pictures.isEmpty()) {
                             path = Environment.getDataDirectory();
                             getFilesFromDir(path, pictures);
                         }
@@ -449,11 +447,11 @@ public class Slideshow {
                         path = Environment.getDataDirectory();
                         getFilesFromDir(path, pictures);
                     }
-                    if (pictures.size() == 0) {
+                    if (pictures.isEmpty()) {
                         path = Environment.getExternalStorageDirectory();
                         getFilesFromDir(path, pictures);
                     }
-                    if (pictures.size() == 0) {
+                    if (pictures.isEmpty()) {
                         path = Environment.getRootDirectory();
                         getFilesFromDir(path, pictures);
                     }
@@ -467,7 +465,7 @@ public class Slideshow {
                 showCentralToast(context.getResources().getQuantityString(R.plurals.refused_pictures, refusedPics, refusedPics, getNameOfSizeFilter()));
             }
             scanRunning = false;
-            if (pictures.size() <= 0) {
+            if (pictures.isEmpty()) {
                 uiHandler.post(nopicsShow);
             }
             uiHandler.post(scanningHide);
@@ -498,14 +496,14 @@ public class Slideshow {
                 }
                 synchronized (picture) {
                     if (picture.bitmap == null || picture.bitmap.isRecycled()) {
-                        System.out.println("first: #" + currentPicture + " " + picture.picFile);
                         picture.loadBitmap(sw, sh);
                         if (picture.bitmap == null) {
-                            System.err.println("Failedfist: #" + currentPicture + " " + picture.picFile);
+                            showFailedToast(context, picture);
                             synchronized (picture) {
                                 pictures.remove(picture);
                                 currentPicture--;
-                                if (pictures.size() <= 0) {
+                                if (pictures.isEmpty()) {
+                                    uiHandler.post(nopicsShow);
                                     break;
                                 }
                             }
@@ -523,9 +521,9 @@ public class Slideshow {
                 currentPic = picture;
                 currentPicPos = imgRect;
 
+                slideshowHandler.post(animateRunnable);
             }
 
-            slideshowHandler.post(animateRunnable);
             slideshowHandler.postDelayed(slideshowJustRedrawRunnable, Slideshow.constAnimTimeToSlide);
             slideshowHandler.postDelayed(slideshowRunnable, settingNextSlideAfter);
         }
@@ -606,7 +604,7 @@ public class Slideshow {
         @Override
         public void run() {
             unschedulePreloaders(); // if the preloaders were too slow, cancel them and try "here" directly
-            if (pictures.size() == 0 || currentPicture == -1) {
+            if (pictures.isEmpty() || currentPicture == -1) {
                 return;
             }
             PicInfo currentPic = Slideshow.this.currentPic;
@@ -639,7 +637,7 @@ public class Slideshow {
         @Override
         public void run() {
             unschedulePreloaders(); // if the preloaders were too slow, cancel them and try "here" directly
-            if (pictures.size() <= 0) {
+            if (pictures.isEmpty()) {
                 // May happen if over runtime, all images turned out as non decodeable or have disappeared
                 fileHandler.post(slideshowEndRunnable);
                 return;
@@ -662,14 +660,14 @@ public class Slideshow {
                     }
                     synchronized (picture) {
                         if (picture.bitmap == null || picture.bitmap.isRecycled()) {
-                            System.out.println("slidefwd: #" + currentPicture + " " + picture.picFile);
                             picture.loadBitmap(sw, sh);
                             if (picture.bitmap == null) {
-                                System.err.println("Failedfwd: #" + currentPicture + " " + picture.picFile);
+                                showFailedToast(context, picture);
                                 synchronized (picture) {
                                     pictures.remove(picture);
                                     currentPicture--;
-                                    if (pictures.size() <= 0) {
+                                    if (pictures.isEmpty()) {
+                                        uiHandler.post(nopicsShow);
                                         break;
                                     }
                                 }
@@ -706,7 +704,7 @@ public class Slideshow {
         @Override
         public void run() {
             unschedulePreloaders(); // if the preloaders were too slow, cancel them and try "here" directly
-            if (pictures.size() <= 0) {
+            if (pictures.isEmpty()) {
                 return;
             }
 
@@ -727,12 +725,14 @@ public class Slideshow {
                     }
                     synchronized (picture) {
                         if (picture.bitmap == null || picture.bitmap.isRecycled()) {
-                            System.out.println("slidebck: #" + currentPicture + " " + picture.picFile);
                             picture.loadBitmap(sw, sh);
                             if (picture.bitmap == null) {
-                                System.err.println("Failedbck: #" + currentPicture + " " + picture.picFile);
+                                showFailedToast(context, picture);
                                 synchronized (pictures) {
                                     pictures.remove(picture);
+                                    if(pictures.isEmpty()) {
+                                        uiHandler.post(nopicsShow);
+                                    }
                                 }
                             }
                         }
@@ -839,7 +839,7 @@ public class Slideshow {
         return false;
     }
 
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(final int keyCode) {
         // left/right and up/down looks swapped,
         // but that's because on keyboard there is no swipe semantics,
         // and we rather want next/prev semantics
@@ -957,7 +957,6 @@ public class Slideshow {
                     synchronized (b) {
                         b.recycle();
                     }
-                    System.out.println("recycl");
                 }
             }
             oldBitmaps.clear();
@@ -973,7 +972,7 @@ public class Slideshow {
                 PicInfo nextPic;
                 synchronized (pictures) {
                     nextPicture++;
-                    if (pictures.size() <= 0) {
+                    if (pictures.isEmpty()) {
                         return;
                     }
                 }
@@ -982,10 +981,9 @@ public class Slideshow {
                     if (vertical ? nextLeftOrTop < sh : nextLeftOrTop < sw) {
                         // in first "screen" which we will just display, load now
                         if (nextPic.bitmap == null || nextPic.bitmap.isRecycled()) {
-                            System.out.println("next: #" + nextPicture + " nextLeftOrTop=" + nextLeftOrTop + " " + nextPic.picFile);
                             nextPic.loadBitmap(sw, sh);
                             if (nextPic.bitmap == null) {
-                                System.err.println("Failednxt: #" + nextPicture + " nextLeftOrTop=" + nextLeftOrTop + " " + nextPic.picFile);
+                                showFailedToast(context, nextPic);
                                 removePicture(nextPic);
                                 nextPicture--;
                                 continue;
@@ -1029,7 +1027,7 @@ public class Slideshow {
                 PicInfo nextPic;
                 synchronized (pictures) {
                     nextPicture--;
-                    if (pictures.size() <= 0) {
+                    if (pictures.isEmpty()) {
                         return;
                     }
                     if (nextPicture < 0) {
@@ -1041,10 +1039,9 @@ public class Slideshow {
                     if (nextRightOrBottom >= 0) {
                         // in first "screen" which we will just display, load now
                         if (nextPic.bitmap == null || nextPic.bitmap.isRecycled()) {
-                            System.out.println("prev: #" + nextPicture + " nextRightOrBottom=" + nextRightOrBottom + " " + nextPic.picFile);
                             nextPic.loadBitmap(sw, sh);
                             if (nextPic.bitmap == null) {
-                                System.err.println("Failedprv: #" + nextPicture + " nextRightOrBottom=" + nextRightOrBottom + " " + nextPic.picFile);
+                                showFailedToast(context, nextPic);
                                 removePicture(nextPic);
                                 continue;
                             }
@@ -1082,6 +1079,9 @@ public class Slideshow {
         synchronized (pictures) {
             int whichPos = pictures.indexOf(which);
             pictures.remove(which);
+            if(pictures.isEmpty()) {
+                uiHandler.post(nopicsShow);
+            }
             if (currentPicture > whichPos) {
                 currentPicture--;
             }
@@ -1101,7 +1101,7 @@ public class Slideshow {
         scheduledPreloaders.clear();
     }
 
-    protected void onCreate() {
+    void onCreate() {
         if (Build.VERSION.SDK_INT >= 11) {
             hideSystemBarAndNavHoneycomb = new HideSystemBarAndNavHoneycomb();
             doActionBarMenuUIVisibility();
@@ -1200,7 +1200,7 @@ public class Slideshow {
         swipeDetector.onTouchEvent(me);
     }
 
-    protected void onStartFromScratch() {
+    void onStartFromScratch() {
         vertical = deviceIsVertical = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 
         HandlerThread bgThread = new HandlerThread("Slideshow Mover");
@@ -1369,11 +1369,9 @@ public class Slideshow {
         slideshowHandler.removeCallbacks(slideshowRunnable);
         slideshowHandler.removeCallbacks(slideshowBackRunnable);
         uiHandler.removeCallbacks(hideSystemBarAndNavHoneycomb);
-        System.out.println("Paused");
     }
 
     public void onResume() {
-        System.out.println("Resuming");
         paused = false;
         if (slideshowRunning) {
             slideshowHandler.post(slideshowJustRedrawRunnable);
@@ -1382,6 +1380,7 @@ public class Slideshow {
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
+        final boolean consumed;
         final Activity activity = (Activity) context;
         boolean changedPath = false;
         switch (item.getItemId()) {
@@ -1390,16 +1389,19 @@ public class Slideshow {
                     path = getExternalPicturesDir();
                     changedPath = true;
                 }
+                consumed = true;
                 break;
             }
             case R.id.useextstoragedir: {
                 path = Environment.getExternalStorageDirectory();
                 changedPath = true;
+                consumed = true;
                 break;
             }
             case R.id.userootdir: {
                 path = Environment.getRootDirectory();
                 changedPath = true;
+                consumed = true;
                 break;
             }
             case R.id.choosedir: {
@@ -1409,17 +1411,20 @@ public class Slideshow {
                 intent.putExtra(DirectorySelector.ONLY_DIRS, true);
                 intent.putExtra(DirectorySelector.ALLOW_UP, true);
                 activity.startActivityForResult(intent, DirectorySelector.SELECT_DIRECTORY);
+                consumed = true;
                 break;
             }
             case R.id.allpictures: {
                 mediaSelection = null;
                 changedPath = true;
+                consumed = true;
                 break;
             }
             case R.id.choosemediastore: {
                 Intent intent = new Intent(activity, MediaStoreSelector.class);
                 intent.putExtra(MediaStoreSelector.START_URI, mediaUri);
                 activity.startActivityForResult(intent, MediaStoreSelector.SELECT_MEDIA);
+                consumed = true;
                 break;
             }
             case R.id.settings:
@@ -1442,7 +1447,11 @@ public class Slideshow {
                     }
                 }
                 activity.startActivity(intent);
+                consumed = true;
                 break;
+            default: {
+                consumed = false;
+            }
         }
         if (changedPath) {
             fileHandler.post(slideshowEndRunnable);
@@ -1450,10 +1459,10 @@ public class Slideshow {
             fileHandler.post(picFinderRunnable);
             saveRememberCollection();
         }
-        return false; // to allow normal menu processing to proceed, true to consume it here
+        return consumed;
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
                 case DirectorySelector.SELECT_DIRECTORY: {
@@ -1497,13 +1506,12 @@ public class Slideshow {
         }
     }
 
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public void onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         adjustOptionsMenu();
-        return true;
     }
 
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public void onPrepareOptionsMenu(Menu menu) {
         if (Build.VERSION.SDK_INT >= 11) {
             // some Android versions(?) or environments(?) may call this actually just after the menu was created,
             // despite it is not going to be displayed
@@ -1529,7 +1537,6 @@ public class Slideshow {
             MenuItem allpictures = menu.findItem(R.id.allpictures);
             allpictures.setChecked(mediaSelection == null);
         }
-        return true;
     }
 
     private void saveRememberCollection() {
@@ -1575,7 +1582,7 @@ public class Slideshow {
         return filterText;
     }
 
-    public void onOptionsMenuClosed(Menu menu) {
+    public void onOptionsMenuClosed() {
         if (Build.VERSION.SDK_INT >= 11) {
             uiHandler.postDelayed(hideSystemBarAndNavHoneycomb, 500);
         }
@@ -1661,6 +1668,10 @@ public class Slideshow {
         } else {
             return findViewById17(id);
         }
+    }
+
+    private void showFailedToast(Context context, PicInfo picture) {
+        Toast.makeText(context, context.getString(R.string.cannot_load, picture.picFile.getName()), Toast.LENGTH_SHORT).show();
     }
 
     @TargetApi(17)

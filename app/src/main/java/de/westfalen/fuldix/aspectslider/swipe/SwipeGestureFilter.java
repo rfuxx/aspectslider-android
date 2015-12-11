@@ -7,7 +7,11 @@ import android.service.dreams.DreamService;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
-import static de.westfalen.fuldix.aspectslider.swipe.SwipeGestureListener.Direction.*;
+
+import static de.westfalen.fuldix.aspectslider.swipe.SwipeGestureListener.Direction.SWIPE_DOWN;
+import static de.westfalen.fuldix.aspectslider.swipe.SwipeGestureListener.Direction.SWIPE_LEFT;
+import static de.westfalen.fuldix.aspectslider.swipe.SwipeGestureListener.Direction.SWIPE_RIGHT;
+import static de.westfalen.fuldix.aspectslider.swipe.SwipeGestureListener.Direction.SWIPE_UP;
 
 public class SwipeGestureFilter extends SimpleOnGestureListener{
     public final static int MODE_TRANSPARENT = 0;
@@ -23,23 +27,23 @@ public class SwipeGestureFilter extends SimpleOnGestureListener{
     private boolean running      = true;
     private boolean tapIndicator = false;
 
-    private Context context;
-    private GestureDetector detector;
-    private SwipeGestureListener listener;
+    final private Context context;
+    final private GestureDetector detector;
+    final private SwipeGestureListener listener;
 
-    public SwipeGestureFilter(Context context, SwipeGestureListener sgl) {
+    public SwipeGestureFilter(final Context context, final SwipeGestureListener sgl) {
 
         this.context = context;
         this.detector = new GestureDetector(context, this);
         this.listener = sgl;
     }
 
-    public void onTouchEvent(MotionEvent event){
+    public void onTouchEvent(final MotionEvent event){
 
         if(!this.running)
             return;
 
-        boolean result = this.detector.onTouchEvent(event);
+        final boolean result = this.detector.onTouchEvent(event);
 
         if(this.mode == MODE_SOLID)
             event.setAction(MotionEvent.ACTION_CANCEL);
@@ -58,7 +62,7 @@ public class SwipeGestureFilter extends SimpleOnGestureListener{
         //else just do nothing, it's Transparent
     }
 
-    public void setMode(int m){
+    public void setMode(final int m){
         this.mode = m;
     }
 
@@ -66,19 +70,19 @@ public class SwipeGestureFilter extends SimpleOnGestureListener{
         return this.mode;
     }
 
-    public void setEnabled(boolean status){
+    public void setEnabled(final boolean status){
         this.running = status;
     }
 
-    public void setSwipeMaxDistance(int distance){
+    public void setSwipeMaxDistance(final int distance){
         this.swipe_Max_Distance = distance;
     }
 
-    public void setSwipeMinDistance(int distance){
+    public void setSwipeMinDistance(final int distance){
         this.swipe_Min_Distance = distance;
     }
 
-    public void setSwipeMinVelocity(int distance){
+    public void setSwipeMinVelocity(final int distance){
         this.swipe_Min_Velocity = distance;
     }
 
@@ -95,7 +99,7 @@ public class SwipeGestureFilter extends SimpleOnGestureListener{
     }
 
     @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+    public boolean onFling(final MotionEvent e1, final MotionEvent e2, float velocityX,
                            float velocityY) {
 
         final float xDistance = Math.abs(e1.getX() - e2.getX());
@@ -129,13 +133,13 @@ public class SwipeGestureFilter extends SimpleOnGestureListener{
     }
 
     @Override
-    public boolean onSingleTapUp(MotionEvent e) {
+    public boolean onSingleTapUp(final MotionEvent e) {
         this.tapIndicator = true;
         return false;
     }
 
     @Override
-    public boolean onSingleTapConfirmed(MotionEvent arg) {
+    public boolean onSingleTapConfirmed(final MotionEvent arg) {
 
         if(this.mode == MODE_DYNAMIC){        // we owe an ACTION_UP, so we fake an
             arg.setAction(ACTION_FAKE);      //action which will be converted to an ACTION_UP later.
@@ -150,14 +154,15 @@ public class SwipeGestureFilter extends SimpleOnGestureListener{
     }
 
     @TargetApi(17)
-    private void dispatchTouchEventToDreamService17(MotionEvent arg) {
+    private void dispatchTouchEventToDreamService17(final MotionEvent arg) {
         if(context instanceof DreamService) {
             ((DreamService) context).dispatchTouchEvent(arg);
         }
     }
 
     @Override
-    public boolean onDoubleTap(MotionEvent me) {
-        return listener.onDoubleTap(me);
+    public boolean onDoubleTap(final MotionEvent me) {
+        listener.onDoubleTap();
+        return true;
     }
 }

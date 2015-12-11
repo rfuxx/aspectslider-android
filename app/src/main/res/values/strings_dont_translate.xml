@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string-array name="pref_delay_list_values">
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string-array name="pref_delay_list_values" tools:ignore="MissingTranslation">
         <item>1000</item>
         <item>2000</item>
         <item>3000</item>
@@ -19,7 +19,7 @@
         <item>50000</item>
         <item>60000</item>
     </string-array>
-    <string-array name="pref_space_between_slides_list_values">
+    <string-array name="pref_space_between_slides_list_values" tools:ignore="MissingTranslation">
         <item>no_space</item>
         <item>min_space</item>
         <item>one_visible_pixel</item>
@@ -27,7 +27,7 @@
         <item>medium_stripe</item>
         <item>wide_stripe</item>
     </string-array>
-    <string-array name="pref_size_filter_list_values">
+    <string-array name="pref_size_filter_list_values" tools:ignore="MissingTranslation">
         <item>none</item>
         <item>fitscreen</item>
         <item>aslargeasscreen</item>

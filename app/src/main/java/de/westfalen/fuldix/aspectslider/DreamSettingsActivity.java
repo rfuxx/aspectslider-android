@@ -149,7 +149,7 @@ public class DreamSettingsActivity extends PreferenceActivity {
         }
     }
 
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
+    private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
@@ -203,7 +203,7 @@ public class DreamSettingsActivity extends PreferenceActivity {
     }
 
 
-    private Preference.OnPreferenceChangeListener sBindIgnoreMediaStore = new Preference.OnPreferenceChangeListener() {
+    private final Preference.OnPreferenceChangeListener sBindIgnoreMediaStore = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             if(PREF_IGNORE_MEDIA_STORE.equals(preference.getKey())) {
@@ -242,7 +242,7 @@ public class DreamSettingsActivity extends PreferenceActivity {
         }
     }
 
-    private Preference.OnPreferenceClickListener sBindGalleryName = new Preference.OnPreferenceClickListener() {
+    private final Preference.OnPreferenceClickListener sBindGalleryName = new Preference.OnPreferenceClickListener() {
         @Override
         public boolean onPreferenceClick(Preference preference) {
             if(PREF_MEDIA_SELECTION.equals(preference.getKey())) {
@@ -255,7 +255,7 @@ public class DreamSettingsActivity extends PreferenceActivity {
         }
     };
 
-    private Preference.OnPreferenceChangeListener sBindAllGalleries = new Preference.OnPreferenceChangeListener() {
+    private final Preference.OnPreferenceChangeListener sBindAllGalleries = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             if(PREF_ALL_GALLERY_PICTURES.equals(preference.getKey())) {
@@ -269,7 +269,7 @@ public class DreamSettingsActivity extends PreferenceActivity {
         }
     };
 
-    private Preference.OnPreferenceChangeListener sBindDirpath = new Preference.OnPreferenceChangeListener() {
+    private final Preference.OnPreferenceChangeListener sBindDirpath = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             File dirpath = null;
@@ -316,7 +316,7 @@ public class DreamSettingsActivity extends PreferenceActivity {
         return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
     }
 
-    private Preference.OnPreferenceClickListener sBindDirSelect = new Preference.OnPreferenceClickListener() {
+    private final Preference.OnPreferenceClickListener sBindDirSelect = new Preference.OnPreferenceClickListener() {
         @Override
         public boolean onPreferenceClick(Preference preference) {
             if(PREF_DIRPATH.equals(preference.getKey())) {
@@ -353,6 +353,9 @@ public class DreamSettingsActivity extends PreferenceActivity {
                     Bundle extras = data.getExtras();
                     Uri mediaUri = (Uri) extras.get(MediaStoreSelector.RETURN_URI);
                     String mediaSelection = extras.getString(MediaStoreSelector.RETURN_SELECTION);
+                    if(mediaSelection == null) {
+                        mediaSelection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString();
+                    }
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
                     sharedPreferences.edit()
                             .putString(PREF_MEDIA_URI, mediaUri.toString())
