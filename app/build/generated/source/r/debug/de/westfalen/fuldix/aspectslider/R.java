@@ -9,12 +9,12 @@ package de.westfalen.fuldix.aspectslider;
 
 public final class R {
     public static final class array {
-        public static final int pref_delay_list_titles=0x7f050000;
-        public static final int pref_delay_list_values=0x7f050003;
-        public static final int pref_size_filter_list_titles=0x7f050001;
-        public static final int pref_size_filter_list_values=0x7f050004;
-        public static final int pref_space_between_slides_list_titles=0x7f050002;
-        public static final int pref_space_between_slides_list_values=0x7f050005;
+        public static final int pref_delay_list_titles=0x7f060000;
+        public static final int pref_delay_list_values=0x7f060003;
+        public static final int pref_size_filter_list_titles=0x7f060001;
+        public static final int pref_size_filter_list_values=0x7f060004;
+        public static final int pref_space_between_slides_list_titles=0x7f060002;
+        public static final int pref_space_between_slides_list_values=0x7f060005;
     }
     public static final class attr {
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
@@ -27,116 +27,119 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int buttonBarStyle=0x7f010000;
     }
     public static final class color {
-        public static final int black_overlay=0x7f0a0000;
-        public static final int solid_black=0x7f0a0001;
+        public static final int black_overlay=0x7f0b0000;
+        public static final int solid_black=0x7f0b0001;
     }
     public static final class dimen {
-        public static final int dir_column_width_intended=0x7f080000;
-        public static final int dir_horizontal_spacing=0x7f080001;
-        public static final int dir_outer_padding=0x7f080002;
-        public static final int gallery_column_width_intended=0x7f080003;
-        public static final int gallery_horizontal_spacing=0x7f080004;
-        public static final int gallery_icon_size=0x7f080005;
-        public static final int gallery_outer_padding=0x7f080006;
-        public static final int medium_stripe=0x7f080007;
-        public static final int min_space=0x7f08000a;
-        public static final int no_space=0x7f08000b;
-        public static final int one_visible_pixel=0x7f08000c;
-        public static final int slim_stripe=0x7f080008;
-        public static final int wide_stripe=0x7f080009;
+        public static final int dir_column_width_intended=0x7f090000;
+        public static final int dir_horizontal_spacing=0x7f090001;
+        public static final int dir_outer_padding=0x7f090002;
+        public static final int gallery_column_width_intended=0x7f090003;
+        public static final int gallery_horizontal_spacing=0x7f090004;
+        public static final int gallery_icon_size=0x7f090005;
+        public static final int gallery_outer_padding=0x7f090006;
+        public static final int medium_stripe=0x7f090007;
+        public static final int min_space=0x7f09000a;
+        public static final int no_space=0x7f09000b;
+        public static final int one_visible_pixel=0x7f09000c;
+        public static final int slim_stripe=0x7f090008;
+        public static final int wide_stripe=0x7f090009;
+    }
+    public static final class drawable {
+        public static final int nothing=0x7f020000;
     }
     public static final class id {
-        public static final int allpictures=0x7f0c0014;
-        public static final int canvasView=0x7f0c0005;
-        public static final int choosedir=0x7f0c0013;
-        public static final int choosemediastore=0x7f0c0015;
-        public static final int dirbutton=0x7f0c0008;
-        public static final int dirgrid=0x7f0c0000;
-        public static final int dirinfo=0x7f0c000a;
-        public static final int dirname=0x7f0c0009;
-        public static final int fullscreen_content=0x7f0c0004;
-        public static final int gallery_image=0x7f0c0003;
-        public static final int galleryicon1=0x7f0c000d;
-        public static final int galleryicon2=0x7f0c000c;
-        public static final int galleryicon3=0x7f0c000b;
-        public static final int galleryinfo=0x7f0c000f;
-        public static final int galleryname=0x7f0c000e;
-        public static final int grid=0x7f0c0002;
-        public static final int no_pictures=0x7f0c0006;
-        public static final int scanning=0x7f0c0007;
-        public static final int settings=0x7f0c0016;
-        public static final int thisdirbutton=0x7f0c0001;
-        public static final int useextstoragedir=0x7f0c0011;
-        public static final int usepicturesdir=0x7f0c0010;
-        public static final int userootdir=0x7f0c0012;
+        public static final int allpictures=0x7f0d0014;
+        public static final int canvasView=0x7f0d0005;
+        public static final int choosedir=0x7f0d0013;
+        public static final int choosemediastore=0x7f0d0015;
+        public static final int dirbutton=0x7f0d0008;
+        public static final int dirgrid=0x7f0d0000;
+        public static final int dirinfo=0x7f0d000a;
+        public static final int dirname=0x7f0d0009;
+        public static final int fullscreen_content=0x7f0d0004;
+        public static final int gallery_image=0x7f0d0003;
+        public static final int galleryicon1=0x7f0d000d;
+        public static final int galleryicon2=0x7f0d000c;
+        public static final int galleryicon3=0x7f0d000b;
+        public static final int galleryinfo=0x7f0d000f;
+        public static final int galleryname=0x7f0d000e;
+        public static final int grid=0x7f0d0002;
+        public static final int no_pictures=0x7f0d0006;
+        public static final int scanning=0x7f0d0007;
+        public static final int settings=0x7f0d0016;
+        public static final int thisdirbutton=0x7f0d0001;
+        public static final int useextstoragedir=0x7f0d0011;
+        public static final int usepicturesdir=0x7f0d0010;
+        public static final int userootdir=0x7f0d0012;
     }
     public static final class layout {
-        public static final int activity_directoryselect=0x7f030000;
-        public static final int activity_mediaselect=0x7f030001;
-        public static final int activity_mediaselect_no_media=0x7f030002;
-        public static final int activity_slideshow=0x7f030003;
-        public static final int dirlist_item=0x7f030004;
-        public static final int medialist_item=0x7f030005;
+        public static final int activity_directoryselect=0x7f040000;
+        public static final int activity_mediaselect=0x7f040001;
+        public static final int activity_mediaselect_no_media=0x7f040002;
+        public static final int activity_slideshow=0x7f040003;
+        public static final int dirlist_item=0x7f040004;
+        public static final int medialist_item=0x7f040005;
     }
     public static final class menu {
-        public static final int options=0x7f0b0000;
+        public static final int options=0x7f0c0000;
     }
     public static final class mipmap {
-        public static final int ic_launcher=0x7f020000;
+        public static final int ic_launcher=0x7f030000;
     }
     public static final class plurals {
-        public static final int dir_info_format_files=0x7f060000;
-        public static final int dir_info_format_subdirs=0x7f060001;
-        public static final int refused_pictures=0x7f060002;
-        public static final int select_gallery_num_pictures=0x7f060003;
+        public static final int dir_info_format_files=0x7f070000;
+        public static final int dir_info_format_subdirs=0x7f070001;
+        public static final int refused_pictures=0x7f070002;
+        public static final int select_gallery_num_pictures=0x7f070003;
     }
     public static final class string {
-        public static final int app_name=0x7f070000;
-        public static final int cannot_load=0x7f070001;
-        public static final int dir_cannotread=0x7f070002;
-        public static final int dir_info_format_empty=0x7f070003;
-        public static final int dir_info_format_files_and_subdirs=0x7f070004;
-        public static final int dir_root=0x7f070005;
-        public static final int dir_selectthis=0x7f070006;
-        public static final int dir_up=0x7f070007;
-        public static final int dir_upto_format=0x7f070008;
-        public static final int menu_allpictures=0x7f070009;
-        public static final int menu_choosedir=0x7f07000a;
-        public static final int menu_choosemediastore=0x7f07000b;
-        public static final int menu_settings=0x7f07000c;
-        public static final int menu_useextstoragedir=0x7f07000d;
-        public static final int menu_usepicturesdir=0x7f07000e;
-        public static final int menu_userootdir=0x7f07000f;
-        public static final int no_pictures=0x7f070010;
-        public static final int pref_description_allow_overscan=0x7f070011;
-        public static final int pref_description_delay=0x7f070012;
-        public static final int pref_description_ignore_media_store=0x7f070013;
-        public static final int pref_description_random=0x7f070014;
-        public static final int pref_description_random_again=0x7f070015;
-        public static final int pref_description_recurse=0x7f070016;
-        public static final int pref_description_remember_collection_unknown=0x7f070017;
-        public static final int pref_description_size_filter=0x7f070018;
-        public static final int pref_description_space_between_slides=0x7f070019;
-        public static final int pref_header_scan_files=0x7f07001a;
-        public static final int pref_header_selection=0x7f07001b;
-        public static final int pref_header_slide_show=0x7f07001c;
-        public static final int pref_select_dir=0x7f07001d;
-        public static final int pref_select_gallery=0x7f07001e;
-        public static final int pref_title_allow_overscan=0x7f07001f;
-        public static final int pref_title_delay=0x7f070020;
-        public static final int pref_title_ignore_media_store=0x7f070021;
-        public static final int pref_title_random=0x7f070022;
-        public static final int pref_title_random_again=0x7f070023;
-        public static final int pref_title_recurse=0x7f070024;
-        public static final int pref_title_remember_collection=0x7f070025;
-        public static final int pref_title_size_filter=0x7f070026;
-        public static final int pref_title_space_between_slides=0x7f070027;
-        public static final int refused_filter_name_when_not_availabe=0x7f070028;
-        public static final int scanning=0x7f070029;
-        public static final int select_gallery=0x7f07002a;
-        public static final int select_gallery_no_media=0x7f07002b;
-        public static final int title_activity_dream_settings=0x7f07002c;
-        public static final int title_activity_settings=0x7f07002d;
+        public static final int app_name=0x7f080000;
+        public static final int cannot_load=0x7f080001;
+        public static final int dir_cannotread=0x7f080002;
+        public static final int dir_info_format_empty=0x7f080003;
+        public static final int dir_info_format_files_and_subdirs=0x7f080004;
+        public static final int dir_root=0x7f080005;
+        public static final int dir_selectthis=0x7f080006;
+        public static final int dir_up=0x7f080007;
+        public static final int dir_upto_format=0x7f080008;
+        public static final int menu_allpictures=0x7f080009;
+        public static final int menu_choosedir=0x7f08000a;
+        public static final int menu_choosemediastore=0x7f08000b;
+        public static final int menu_settings=0x7f08000c;
+        public static final int menu_useextstoragedir=0x7f08000d;
+        public static final int menu_usepicturesdir=0x7f08000e;
+        public static final int menu_userootdir=0x7f08000f;
+        public static final int no_pictures=0x7f080010;
+        public static final int pref_description_allow_overscan=0x7f080011;
+        public static final int pref_description_delay=0x7f080012;
+        public static final int pref_description_ignore_media_store=0x7f080013;
+        public static final int pref_description_random=0x7f080014;
+        public static final int pref_description_random_again=0x7f080015;
+        public static final int pref_description_recurse=0x7f080016;
+        public static final int pref_description_remember_collection_unknown=0x7f080017;
+        public static final int pref_description_size_filter=0x7f080018;
+        public static final int pref_description_space_between_slides=0x7f080019;
+        public static final int pref_header_scan_files=0x7f08001a;
+        public static final int pref_header_selection=0x7f08001b;
+        public static final int pref_header_slide_show=0x7f08001c;
+        public static final int pref_select_dir=0x7f08001d;
+        public static final int pref_select_gallery=0x7f08001e;
+        public static final int pref_title_allow_overscan=0x7f08001f;
+        public static final int pref_title_delay=0x7f080020;
+        public static final int pref_title_ignore_media_store=0x7f080021;
+        public static final int pref_title_random=0x7f080022;
+        public static final int pref_title_random_again=0x7f080023;
+        public static final int pref_title_recurse=0x7f080024;
+        public static final int pref_title_remember_collection=0x7f080025;
+        public static final int pref_title_size_filter=0x7f080026;
+        public static final int pref_title_space_between_slides=0x7f080027;
+        public static final int refused_filter_name_when_not_availabe=0x7f080028;
+        public static final int scanning=0x7f080029;
+        public static final int select_gallery=0x7f08002a;
+        public static final int select_gallery_no_media=0x7f08002b;
+        public static final int title_activity_dream_settings=0x7f08002c;
+        public static final int title_activity_settings=0x7f08002d;
     }
     public static final class style {
         /**  API 11 theme customizations can go here. 
@@ -148,26 +151,26 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 
         
          */
-        public static final int AppBaseTheme=0x7f090000;
+        public static final int AppBaseTheme=0x7f0a0000;
         /**  All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f090003;
-        public static final int ButtonBar=0x7f090004;
-        public static final int ButtonBarButton=0x7f090005;
-        public static final int FullscreenActionBarStyle=0x7f090001;
-        public static final int FullscreenTheme=0x7f090002;
+        public static final int AppTheme=0x7f0a0003;
+        public static final int ButtonBar=0x7f0a0004;
+        public static final int ButtonBarButton=0x7f0a0005;
+        public static final int FullscreenActionBarStyle=0x7f0a0001;
+        public static final int FullscreenTheme=0x7f0a0002;
     }
     public static final class xml {
-        public static final int dream_slideshow=0x7f040000;
-        public static final int pref_dream_fileselect=0x7f040001;
-        public static final int pref_dream_galleryselect=0x7f040002;
-        public static final int pref_dream_headers=0x7f040003;
-        public static final int pref_dream_scan_files=0x7f040004;
-        public static final int pref_dream_slides=0x7f040005;
-        public static final int pref_fakeroot=0x7f040006;
-        public static final int pref_headers=0x7f040007;
-        public static final int pref_scan_files=0x7f040008;
-        public static final int pref_slides=0x7f040009;
+        public static final int dream_slideshow=0x7f050000;
+        public static final int pref_dream_fileselect=0x7f050001;
+        public static final int pref_dream_galleryselect=0x7f050002;
+        public static final int pref_dream_headers=0x7f050003;
+        public static final int pref_dream_scan_files=0x7f050004;
+        public static final int pref_dream_slides=0x7f050005;
+        public static final int pref_fakeroot=0x7f050006;
+        public static final int pref_headers=0x7f050007;
+        public static final int pref_scan_files=0x7f050008;
+        public static final int pref_slides=0x7f050009;
     }
     public static final class styleable {
         /** Attributes that can be used with a ButtonBarContainerTheme.
