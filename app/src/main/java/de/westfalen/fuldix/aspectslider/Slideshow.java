@@ -1248,13 +1248,13 @@ public class Slideshow {
         }
         switch (settingSizeFilter) {
             case Slideshow.PREF_SIZEFILTER_VIDEO4K:
-                return longerside > 3840 && shorterside > 2160;
+                return longerside >= 3840 && shorterside >= 2160;
             case Slideshow.PREF_SIZEFILTER_HD1080P:
-                return longerside > 1920 && shorterside > 1080;
+                return longerside >= 1920 && shorterside >= 1080;
             case Slideshow.PREF_SIZEFILTER_HD720P:
-                return longerside > 1280 && shorterside > 720;
+                return longerside >= 1280 && shorterside >= 720;
             case Slideshow.PREF_SIZEFILTER_NONE:
-                return longerside > 0 && shorterside > 0;
+                return longerside >= 0 && shorterside >= 0;
         }
         final int longerScreenside, shorterScreenside;
         if (sw > sh) {
