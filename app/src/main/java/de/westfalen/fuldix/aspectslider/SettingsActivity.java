@@ -39,9 +39,9 @@ public class SettingsActivity extends PreferenceActivity {
     private String rememberSelectionDescription;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Bundle extras = getIntent().getExtras();
+        final Bundle extras = getIntent().getExtras();
         if (extras != null) {
             rememberDirDescription = extras.getString(REMEMBER_COLLECTION_DESCRIPTION_DIR);
             rememberSelectionDescription = extras.getString(REMEMBER_COLLECTION_DESCRIPTION_SELECTION);
@@ -49,7 +49,7 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
+    protected void onPostCreate(final Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
         setupSimplePreferencesScreen();
@@ -92,7 +92,7 @@ public class SettingsActivity extends PreferenceActivity {
      * Helper method to determine if the device has an extra-large screen. For
      * example, 10" tablets are extra-large.
      */
-    private static boolean isXLargeTablet(Context context) {
+    private static boolean isXLargeTablet(final Context context) {
         return (context.getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
@@ -104,7 +104,7 @@ public class SettingsActivity extends PreferenceActivity {
      * doesn't have an extra-large screen. In these cases, a single-pane
      * "simplified" settings UI should be shown.
      */
-    private static boolean isSimplePreferences(Context context) {
+    private static boolean isSimplePreferences(final Context context) {
         return ALWAYS_SIMPLE_PREFS
                 || Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
                 || !isXLargeTablet(context);
@@ -112,7 +112,7 @@ public class SettingsActivity extends PreferenceActivity {
 
     @Override
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void onBuildHeaders(List<Header> target) {
+    public void onBuildHeaders(final List<Header> target) {
         if (!isSimplePreferences(this)) {
             loadHeadersFromResource(R.xml.pref_headers, target);
         }
@@ -120,14 +120,14 @@ public class SettingsActivity extends PreferenceActivity {
 
     private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
-        public boolean onPreferenceChange(Preference preference, Object value) {
-            String stringValue = value.toString();
+        public boolean onPreferenceChange(final Preference preference, final Object value) {
+            final String stringValue = value.toString();
 
             if (preference instanceof ListPreference) {
                 // For list preferences, look up the correct display value in
                 // the preference's 'entries' list.
-                ListPreference listPreference = (ListPreference) preference;
-                int index = listPreference.findIndexOfValue(stringValue);
+                final ListPreference listPreference = (ListPreference) preference;
+                final int index = listPreference.findIndexOfValue(stringValue);
 
                 CharSequence summary = index >= 0
                         ? listPreference.getEntries()[index]
@@ -159,7 +159,7 @@ public class SettingsActivity extends PreferenceActivity {
         }
     };
 
-    private static void bindPreferenceSummaryToValue(Preference preference) {
+    private static void bindPreferenceSummaryToValue(final Preference preference) {
         // Set the listener to watch for value changes.
         preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
 
@@ -171,8 +171,8 @@ public class SettingsActivity extends PreferenceActivity {
                         .getString(preference.getKey(), ""));
     }
 
-    private static void linkIgnoreMediaStoreWithRememberCollection(CheckBoxPreference ignoreMediaStore, Preference rememberCollection, String rememberDirDescription, String rememberSelectionDescription) {
-        Preference.OnPreferenceChangeListener listener = new LinkIgnoreMediaStoreWithRememberCollectionListener(rememberCollection, rememberDirDescription, rememberSelectionDescription);
+    private static void linkIgnoreMediaStoreWithRememberCollection(final CheckBoxPreference ignoreMediaStore, final Preference rememberCollection, final String rememberDirDescription, final String rememberSelectionDescription) {
+        final Preference.OnPreferenceChangeListener listener = new LinkIgnoreMediaStoreWithRememberCollectionListener(rememberCollection, rememberDirDescription, rememberSelectionDescription);
         ignoreMediaStore.setOnPreferenceChangeListener(listener);
         listener.onPreferenceChange(ignoreMediaStore,
                 PreferenceManager
@@ -185,13 +185,13 @@ public class SettingsActivity extends PreferenceActivity {
         private final String rememberDirDescription;
         private final String rememberSelectionDescription;
 
-        LinkIgnoreMediaStoreWithRememberCollectionListener(Preference rememberCollection, String rememberDirDescription, String rememberSelectionDescription) {
+        LinkIgnoreMediaStoreWithRememberCollectionListener(final Preference rememberCollection, final String rememberDirDescription, final String rememberSelectionDescription) {
             this.rememberCollection = rememberCollection;
             this.rememberDirDescription = rememberDirDescription;
             this.rememberSelectionDescription = rememberSelectionDescription;
         }
         @Override
-        public boolean onPreferenceChange(Preference preference, Object newValue) {
+        public boolean onPreferenceChange(final Preference preference, final Object newValue) {
             if (preference.getKey().equals(PREF_IGNORE_MEDIA_STORE)) {
                 rememberCollection.setSummary((Boolean) newValue ? rememberDirDescription : rememberSelectionDescription);
                 return true;
@@ -207,7 +207,7 @@ public class SettingsActivity extends PreferenceActivity {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class SlideShowPreferenceFragment extends PreferenceFragment {
         @Override
-        public void onCreate(Bundle savedInstanceState) {
+        public void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_slides);
 
@@ -223,7 +223,7 @@ public class SettingsActivity extends PreferenceActivity {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class ScanFilesPreferenceFragment extends PreferenceFragment {
         @Override
-        public void onCreate(Bundle savedInstanceState) {
+        public void onCreate(final Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_scan_files);
 
@@ -235,7 +235,7 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     @Override
-    protected boolean isValidFragment(String fragmentName) {
+    protected boolean isValidFragment(final String fragmentName) {
         return fragmentName.equals(SlideShowPreferenceFragment.class.getName())
                || fragmentName.equals(ScanFilesPreferenceFragment.class.getName());
     }

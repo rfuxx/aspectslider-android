@@ -157,7 +157,7 @@ public class Slideshow {
                 );
             }
             if (context instanceof Activity) {
-                ActionBar ab = ((Activity) context).getActionBar();
+                final ActionBar ab = ((Activity) context).getActionBar();
                 if (ab != null) {
                     ab.hide();
                 }
@@ -169,7 +169,7 @@ public class Slideshow {
     private class ClearScreenRunnable implements Runnable {
         public void run() {
             final SurfaceHolder holder = canvasView.getHolder();
-            Canvas c = holder.lockCanvas();
+            final Canvas c = holder.lockCanvas();
             if (c != null) {
                 c.drawColor(context.getResources().getColor(R.color.solid_black));
                 holder.unlockCanvasAndPost(c);
@@ -183,7 +183,7 @@ public class Slideshow {
         private final Collection<Bitmap> beforeBitmaps;
         private final Collection<Bitmap> afterBitmaps;
 
-        UpdateScreenRunnable(Rect animatePos, Bitmap currentBitmap, Collection<Bitmap> beforeBitmaps, Collection<Bitmap> afterBitmaps) {
+        UpdateScreenRunnable(final Rect animatePos, final Bitmap currentBitmap, final Collection<Bitmap> beforeBitmaps, final Collection<Bitmap> afterBitmaps) {
             this.animatePos = animatePos;
             this.currentBitmap = currentBitmap;
             this.beforeBitmaps = beforeBitmaps;
@@ -193,7 +193,7 @@ public class Slideshow {
         @Override
         public void run() {
             final SurfaceHolder holder = canvasView.getHolder();
-            Canvas c = holder.lockCanvas();
+            final Canvas c = holder.lockCanvas();
             if (c == null) {
                 System.err.println("UpdateScreenRunnable's SurfaceHolder.lockCanvas() got null");
                 return;
@@ -207,10 +207,10 @@ public class Slideshow {
                 }
             }
             // after
-            Rect pos = new Rect(animatePos);
-            for (Bitmap b : afterBitmaps) {
-                float imgRatio = (float) b.getWidth() / (float) b.getHeight();
-                int pw, ph;
+            final Rect pos = new Rect(animatePos);
+            for (final Bitmap b : afterBitmaps) {
+                final float imgRatio = (float) b.getWidth() / (float) b.getHeight();
+                final int pw, ph;
                 if (shouldAlignToWidth(imgRatio)) {
                     ph = Math.round(sw / imgRatio);
                     pw = sw;
@@ -237,9 +237,9 @@ public class Slideshow {
             }
             // before
             pos.set(animatePos);
-            for (Bitmap b : beforeBitmaps) {
-                float imgRatio = (float) b.getWidth() / (float) b.getHeight();
-                int pw, ph;
+            for (final Bitmap b : beforeBitmaps) {
+                final float imgRatio = (float) b.getWidth() / (float) b.getHeight();
+                final int pw, ph;
                 if (shouldAlignToWidth(imgRatio)) {
                     ph = Math.round(sw / imgRatio);
                     pw = sw;
@@ -272,7 +272,7 @@ public class Slideshow {
 
     private class SettingsListener implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPref, String key) {
+        public void onSharedPreferenceChanged(final SharedPreferences sharedPref, final String key) {
             if (key.equals(PREF_DELAY)) {
                 applyDelay(sharedPref);
             } else if (key.equals(PREF_SPACE_BETWEEN_SLIDES)) {
@@ -294,25 +294,25 @@ public class Slideshow {
             }
         }
 
-        void applyDelay(SharedPreferences sharedPref) {
-            String delayStr = sharedPref.getString(PREF_DELAY, "5000");
+        void applyDelay(final SharedPreferences sharedPref) {
+            final String delayStr = sharedPref.getString(PREF_DELAY, "5000");
             try {
                 int delayVal = Integer.parseInt(delayStr);
                 if (delayVal < 1000) {
                     delayVal = 1000;
                 }
                 settingNextSlideAfter = delayVal;
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 System.err.println("NumberFormatException on pref delay: " + delayStr);
             }
         }
 
-        void applySpaceBetweenSlides(SharedPreferences sharedPref) {
-            String spaceStr = sharedPref.getString(PREF_SPACE_BETWEEN_SLIDES, "min_space");
-            Resources res = context.getResources();
-            int dim = res.getIdentifier(spaceStr, "dimen", context.getPackageName());
+        void applySpaceBetweenSlides(final SharedPreferences sharedPref) {
+            final String spaceStr = sharedPref.getString(PREF_SPACE_BETWEEN_SLIDES, "min_space");
+            final Resources res = context.getResources();
+            final int dim = res.getIdentifier(spaceStr, "dimen", context.getPackageName());
             if (dim != 0) {
-                float spaceVal = res.getDimension(dim);
+                final float spaceVal = res.getDimension(dim);
                 settingSpaceBetweenSlides = (int) Math.ceil(spaceVal);
             } else {
                 System.err.println("Pref resource for <dimen> not found: " + spaceStr);
@@ -322,12 +322,12 @@ public class Slideshow {
             }
         }
 
-        void applyAllowOverscan(SharedPreferences sharedPref) {
+        void applyAllowOverscan(final SharedPreferences sharedPref) {
             settingAllowOverscan = sharedPref.getBoolean(PREF_ALLOW_OVERSCAN, false);
             slideshowHandler.postAtFrontOfQueue(slideshowJustRedrawRunnable);
         }
 
-        void applyRandom(SharedPreferences sharedPref) {
+        void applyRandom(final SharedPreferences sharedPref) {
             settingRandom = sharedPref.getBoolean(PREF_RANDOM, false);
             synchronized (pictures) {
                 if (settingRandom) {
@@ -339,30 +339,30 @@ public class Slideshow {
             slideshowHandler.postAtFrontOfQueue(slideshowJustRedrawRunnable);
         }
 
-        void applyRandomAgain(SharedPreferences sharedPref) {
+        void applyRandomAgain(final SharedPreferences sharedPref) {
             settingRandomAgain = sharedPref.getBoolean(PREF_RANDOM_AGAIN, false);
         }
 
-        void applyRecurse(SharedPreferences sharedPref) {
+        void applyRecurse(final SharedPreferences sharedPref) {
             settingRecurse = sharedPref.getBoolean(PREF_RECURSE, false);
             fileHandler.post(slideshowEndRunnable);
             scanRunning = false;
             fileHandler.post(picFinderRunnable);
         }
 
-        void applySizeFilter(SharedPreferences sharedPref) {
+        void applySizeFilter(final SharedPreferences sharedPref) {
             settingSizeFilter = sharedPref.getString(PREF_SIZE_FILTER, Slideshow.PREF_SIZEFILTER_NONE);
             fileHandler.post(slideshowEndRunnable);
             scanRunning = false;
             fileHandler.post(picFinderRunnable);
         }
 
-        void applyRememberCollection(SharedPreferences sharedPref) {
+        void applyRememberCollection(final SharedPreferences sharedPref) {
             settingRememberCollection = sharedPref.getBoolean(PREF_REMEMBER_COLLECTION, false);
             saveRememberCollection();
         }
 
-        void applyIgnoreMediaStore(SharedPreferences sharedPref) {
+        void applyIgnoreMediaStore(final SharedPreferences sharedPref) {
             settingIgnoreMediaStore = sharedPref.getBoolean(PREF_IGNORE_MEDIA_STORE, false);
             adjustOptionsMenu();
             fileHandler.post(slideshowEndRunnable);
@@ -374,7 +374,7 @@ public class Slideshow {
     private class Preloader implements Runnable {
         private final PicInfo pic;
 
-        Preloader(PicInfo pic) {
+        Preloader(final PicInfo pic) {
             this.pic = pic;
         }
 
@@ -397,7 +397,7 @@ public class Slideshow {
 
     private final SwipeGestureListener swipeListener = new SwipeGestureListener() {
         @Override
-        public void onSwipe(Direction direction) {
+        public void onSwipe(final Direction direction) {
             if (!slideshowRunning) {
                 return;
             }
@@ -548,12 +548,12 @@ public class Slideshow {
                     slideshowHandler.post(slideshowEndSyncer);
                     slideshowEndSyncer.wait();
                     slideshowRunning = false;
-                } catch (InterruptedException e) {
+                } catch (final InterruptedException e) {
                     e.printStackTrace();
                 }
             }
             uiHandler.post(clearScreenRunnable);
-            for (PicInfo pic : pictures) {
+            for (final PicInfo pic : pictures) {
                 synchronized (pic) {
                     if (pic.bitmap != null) {
                         pic.bitmap.recycle();
@@ -570,7 +570,7 @@ public class Slideshow {
     private final Runnable animateRunnable = new Runnable() {
         @Override
         public void run() {
-            for (Runnable uiTask : uiAnimateTasks) {
+            for (final Runnable uiTask : uiAnimateTasks) {
                 uiHandler.removeCallbacks(uiTask);
             }
             uiAnimateTasks.clear();
@@ -607,7 +607,7 @@ public class Slideshow {
             if (pictures.isEmpty() || currentPicture == -1) {
                 return;
             }
-            PicInfo currentPic = Slideshow.this.currentPic;
+            final PicInfo currentPic = Slideshow.this.currentPic;
             if (currentPic != null) {
                 slideshowHandler.removeCallbacks(animateRunnable);
                 for (Runnable uiTask : uiAnimateTasks) {
@@ -794,7 +794,7 @@ public class Slideshow {
         }
     }
 
-    private boolean onMoveXY(float xMovement, float yMovement) {
+    private boolean onMoveXY(final float xMovement, final float yMovement) {
         if (xMovement > 0 && (xMovement > yMovement || (!vertical && xMovement == yMovement))) {
             doRight();
             return true;
@@ -811,12 +811,12 @@ public class Slideshow {
         return false;
     }
 
-    public boolean onTrackballEvent(MotionEvent event) {
+    public boolean onTrackballEvent(final MotionEvent event) {
         return onMoveXY(event.getX(), event.getY());
     }
 
     @TargetApi(12)
-    public boolean onGenericMotionEvent(MotionEvent event) {
+    public boolean onGenericMotionEvent(final MotionEvent event) {
         switch (event.getSource()) {
             case InputDevice.SOURCE_GAMEPAD:
             case InputDevice.SOURCE_JOYSTICK:
@@ -916,14 +916,14 @@ public class Slideshow {
         paused = false;
     }
 
-    private Rect calcPicRectInDisplay(PicInfo picture) {
+    private Rect calcPicRectInDisplay(final PicInfo picture) {
         if (sw > 0 && sh > 0) {
-            float imgRatio = (float) picture.width / (float) picture.height;
+            final float imgRatio = (float) picture.width / (float) picture.height;
             if (shouldAlignToWidth(imgRatio)) {
-                int ph = Math.round(sw / imgRatio);
+                final int ph = Math.round(sw / imgRatio);
                 return new Rect(0, (sh - ph) / 2, sw, (sh - ph) / 2 + ph);
             } else {
-                int pw = Math.round(sh * imgRatio);
+                final int pw = Math.round(sh * imgRatio);
                 return new Rect((sw - pw) / 2, 0, (sw - pw) / 2 + pw, sh);
             }
         } else {
@@ -931,7 +931,7 @@ public class Slideshow {
         }
     }
 
-    private boolean shouldAlignToWidth(float imgRatio) {
+    private boolean shouldAlignToWidth(final float imgRatio) {
         if (settingAllowOverscan) {
             return vertical; // when overscan, then it depends only on the scroll direction, because rest gets filled up from scroll.
         } else {
@@ -951,8 +951,8 @@ public class Slideshow {
 
     private void recycleUnneededBitmaps() {
         synchronized (oldBitmaps) {
-            PicInfo currentPic = this.currentPic;
-            for (Bitmap b : oldBitmaps) {
+            final PicInfo currentPic = this.currentPic;
+            for (final Bitmap b : oldBitmaps) {
                 if (b != null && !b.isRecycled() && !afterBitmaps.contains(b) && !beforeBitmaps.contains(b) && currentPic != null && currentPic.bitmap != b) {
                     synchronized (b) {
                         b.recycle();
@@ -969,7 +969,7 @@ public class Slideshow {
             int nextLeftOrTop = vertical ? currentPicPos.bottom + settingSpaceBetweenSlides : currentPicPos.right + settingSpaceBetweenSlides;
             afterBitmaps.clear();
             while (vertical ? nextLeftOrTop < 2 * sh : nextLeftOrTop < 2 * sw) {
-                PicInfo nextPic;
+                final PicInfo nextPic;
                 synchronized (pictures) {
                     nextPicture++;
                     if (pictures.isEmpty()) {
@@ -1024,7 +1024,7 @@ public class Slideshow {
             int nextRightOrBottom = vertical ? currentPicPos.top - settingSpaceBetweenSlides : currentPicPos.left - settingSpaceBetweenSlides;
             beforeBitmaps.clear();
             while (vertical ? nextRightOrBottom > -sh : nextRightOrBottom > -sw) {
-                PicInfo nextPic;
+                final PicInfo nextPic;
                 synchronized (pictures) {
                     nextPicture--;
                     if (pictures.isEmpty()) {
@@ -1056,7 +1056,7 @@ public class Slideshow {
                         }
                     }
                 }
-                float imgRatio = (float) nextPic.width / (float) nextPic.height;
+                final float imgRatio = (float) nextPic.width / (float) nextPic.height;
                 if (vertical) {
                     if (shouldAlignToWidth(imgRatio)) {
                         nextRightOrBottom -= Math.round(sw / imgRatio) - 1;
@@ -1075,9 +1075,9 @@ public class Slideshow {
         }
     }
 
-    private void removePicture(PicInfo which) {
+    private void removePicture(final PicInfo which) {
         synchronized (pictures) {
-            int whichPos = pictures.indexOf(which);
+            final int whichPos = pictures.indexOf(which);
             pictures.remove(which);
             if(pictures.isEmpty()) {
                 uiHandler.post(nopicsShow);
@@ -1088,14 +1088,14 @@ public class Slideshow {
         }
     }
 
-    private void schedulePreload(PicInfo pic) {
-        Preloader preloader = new Preloader(pic);
+    private void schedulePreload(final PicInfo pic) {
+        final Preloader preloader = new Preloader(pic);
         scheduledPreloaders.add(preloader);
         preloadHandler.post(preloader);
     }
 
     private void unschedulePreloaders() {
-        for (Preloader preloader : scheduledPreloaders) {
+        for (final Preloader preloader : scheduledPreloaders) {
             preloadHandler.removeCallbacks(preloader);
         }
         scheduledPreloaders.clear();
@@ -1140,21 +1140,21 @@ public class Slideshow {
             final SurfaceHolder holder = canvasView.getHolder();
             holder.addCallback(new SurfaceHolder.Callback() {
                 @Override
-                public void surfaceCreated(SurfaceHolder holder) {
+                public void surfaceCreated(final SurfaceHolder holder) {
                 }
 
                 @Override
-                public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                public void surfaceChanged(final SurfaceHolder holder, final int format, final int width, final int height) {
                     sw = width;
                     sh = height;
                     screenRatio = (float) sw / (float) sh;
-                    PicInfo currentPic = Slideshow.this.currentPic;
+                    final PicInfo currentPic = Slideshow.this.currentPic;
                     if (slideshowRunning && slideshowHandler != null && currentPic != null) {
                         // update as immediate as possble
                         final Rect imgRect = calcPicRectInDisplay(currentPic);
                         oldPicPos = imgRect;
                         currentPicPos = imgRect;
-                        Runnable uiTask = new UpdateScreenRunnable(new Rect(currentPicPos), currentPic.bitmap, new LinkedList<>(beforeBitmaps), new LinkedList<>(afterBitmaps));
+                        final Runnable uiTask = new UpdateScreenRunnable(new Rect(currentPicPos), currentPic.bitmap, new LinkedList<>(beforeBitmaps), new LinkedList<>(afterBitmaps));
                         uiTask.run();
                         // post to update, as the change may imply we have to load new before/afterBitmaps
                         slideshowHandler.postAtFrontOfQueue(slideshowJustRedrawRunnable);
@@ -1164,7 +1164,7 @@ public class Slideshow {
                 }
 
                 @Override
-                public void surfaceDestroyed(SurfaceHolder holder) {
+                public void surfaceDestroyed(final SurfaceHolder holder) {
                 }
             });
         }
@@ -1176,7 +1176,7 @@ public class Slideshow {
         nopicsShow = new VisibilityRunnable(nopicsView, View.VISIBLE);
         nopicsHide = new VisibilityRunnable(nopicsView, View.GONE);
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         sharedPref.registerOnSharedPreferenceChangeListener(settingsListener);
         settingsListener.applyDelay(sharedPref);
         settingsListener.applySpaceBetweenSlides(sharedPref);
@@ -1195,7 +1195,7 @@ public class Slideshow {
         adjustOptionsMenu();
     }
 
-    public void dispatchTouchEvent(MotionEvent me) {
+    public void dispatchTouchEvent(final MotionEvent me) {
         // Call onTouchEvent of SimpleGestureFilter class
         swipeDetector.onTouchEvent(me);
     }
@@ -1215,7 +1215,7 @@ public class Slideshow {
         fileHandler.post(picFinderRunnable);
     }
 
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(final Configuration newConfig) {
         if (!deviceIsVertical && newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             vertical = deviceIsVertical = true;
         } else if (deviceIsVertical && newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -1224,20 +1224,20 @@ public class Slideshow {
     }
 
     private PicInfo getPicInfo(int num) {
-        int s = pictures.size();
+        final int s = pictures.size();
         num %= s;
         return pictures.get(num);
     }
 
-    private boolean acceptFileSize(PicInfo pic) {
-        boolean accepted = acceptFileSizeInternalChecking(pic);
+    private boolean acceptFileSize(final PicInfo pic) {
+        final boolean accepted = acceptFileSizeInternalChecking(pic);
         if (!accepted) {
             refusedPics++;
         }
         return accepted;
     }
 
-    private boolean acceptFileSizeInternalChecking(PicInfo pic) {
+    private boolean acceptFileSizeInternalChecking(final PicInfo pic) {
         final int longerside, shorterside;
         if (pic.width > pic.height) {
             longerside = pic.width;
@@ -1276,11 +1276,11 @@ public class Slideshow {
         }
     }
 
-    private void insertNewPic(List<PicInfo> result, PicInfo newPicInfo) {
+    private void insertNewPic(final List<PicInfo> result, final PicInfo newPicInfo) {
         if (acceptFileSize(newPicInfo)) {
             synchronized (result) {
                 if (settingRandom) {
-                    int insertPos = random.nextInt(result.size() + 1);
+                    final int insertPos = random.nextInt(result.size() + 1);
                     result.add(insertPos, newPicInfo);
                     if (insertPos <= currentPicture) {
                         currentPicture++;
@@ -1296,15 +1296,15 @@ public class Slideshow {
         }
     }
 
-    private void getFilesFromDir(File path, List<PicInfo> result) {
-        File[] files = path.listFiles();
+    private void getFilesFromDir(final File path, final List<PicInfo> result) {
+        final File[] files = path.listFiles();
         if (files != null) {
-            BitmapFactory.Options options = new BitmapFactory.Options();
+            final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             if (!settingRandom) {
                 Arrays.sort(files);
             }
-            for (File file : files) {
+            for (final File file : files) {
                 if (!scanRunning) {
                     return;
                 }
@@ -1315,8 +1315,8 @@ public class Slideshow {
                 } else if (file.isFile() && !file.isHidden()) {
                     BitmapFactory.decodeFile(file.getAbsolutePath(), options);
                     if (options.outMimeType != null) {
-                        int orientation = BitmapUtils.getOrientationFromExif(file.getAbsolutePath());
-                        PicInfo newPicInfo = new PicInfo(file, options.outWidth, options.outHeight, orientation);
+                        final int orientation = BitmapUtils.getOrientationFromExif(file.getAbsolutePath());
+                        final PicInfo newPicInfo = new PicInfo(file, options.outWidth, options.outHeight, orientation);
                         insertNewPic(result, newPicInfo);
                     }
                 }
@@ -1324,26 +1324,25 @@ public class Slideshow {
         }
     }
 
-    private void getFilesFromMediaStore(Vector<PicInfo> result) {
+    private void getFilesFromMediaStore(final Vector<PicInfo> result) {
         final String[] columnsV16 = {MediaStore.Images.Media.DATA, MediaStore.Images.Media.WIDTH, MediaStore.Images.Media.HEIGHT, MediaStore.Images.Media.ORIENTATION};
         final String[] columnsOld = {MediaStore.Images.Media.DATA};
-        String[] columns = (Build.VERSION.SDK_INT >= 16) ? columnsV16 : columnsOld;
-        String sort = settingRandom ? null : MediaStore.MediaColumns.DATA;  // is then compatible with sort()ing the PicInfos
-        Cursor cursor = context.getContentResolver().query(mediaUri, columns, mediaSelection, null, sort);
+        final String[] columns = (Build.VERSION.SDK_INT >= 16) ? columnsV16 : columnsOld;
+        final String sort = settingRandom ? null : MediaStore.MediaColumns.DATA;  // is then compatible with sort()ing the PicInfos
+        final Cursor cursor = context.getContentResolver().query(mediaUri, columns, mediaSelection, null, sort);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 while (!cursor.isAfterLast()) {
-                    String fileName = cursor.getString(0);
-                    int width;
-                    int height;
-                    int orientation;
+                    final String fileName = cursor.getString(0);
+                    final int width;
+                    final int height;
+                    final int orientation;
                     if (Build.VERSION.SDK_INT >= 16) {
                         width = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.WIDTH));
                         height = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.HEIGHT));
-                        orientation = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION));
-                        orientation = BitmapUtils.degreesToExif(orientation);
+                        orientation = BitmapUtils.degreesToExif(cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION)));
                     } else {
-                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        final BitmapFactory.Options options = new BitmapFactory.Options();
                         options.inJustDecodeBounds = true;
                         BitmapFactory.decodeFile(fileName, options);
                         if (options.outMimeType != null) {
@@ -1355,7 +1354,7 @@ public class Slideshow {
                         }
                         orientation = BitmapUtils.getOrientationFromExif(fileName);
                     }
-                    PicInfo newPic = new PicInfo(new File(fileName), width, height, orientation);
+                    final PicInfo newPic = new PicInfo(new File(fileName), width, height, orientation);
                     insertNewPic(result, newPic);
                     cursor.moveToNext();
                 }
@@ -1379,7 +1378,7 @@ public class Slideshow {
         }
     }
 
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         final boolean consumed;
         final Activity activity = (Activity) context;
         boolean changedPath = false;
@@ -1421,14 +1420,14 @@ public class Slideshow {
                 break;
             }
             case R.id.choosemediastore: {
-                Intent intent = new Intent(activity, MediaStoreSelector.class);
+                final Intent intent = new Intent(activity, MediaStoreSelector.class);
                 intent.putExtra(MediaStoreSelector.START_URI, mediaUri);
                 activity.startActivityForResult(intent, MediaStoreSelector.SELECT_MEDIA);
                 consumed = true;
                 break;
             }
             case R.id.settings:
-                Intent intent = new Intent(activity, SettingsActivity.class);
+                final Intent intent = new Intent(activity, SettingsActivity.class);
                 if (path != null) {
                     intent.putExtra(SettingsActivity.REMEMBER_COLLECTION_DESCRIPTION_DIR, path.getAbsolutePath());
                 } else {
@@ -1437,8 +1436,8 @@ public class Slideshow {
                 if (mediaSelection == null || mediaSelection.equals("")) {
                     intent.putExtra(SettingsActivity.REMEMBER_COLLECTION_DESCRIPTION_SELECTION, context.getString(R.string.menu_allpictures));
                 } else {
-                    String[] columns = {"distinct " + MediaStore.Images.Media.BUCKET_DISPLAY_NAME};
-                    Cursor c = context.getContentResolver().query(mediaUri, columns, mediaSelection, null, null);
+                    final String[] columns = {"distinct " + MediaStore.Images.Media.BUCKET_DISPLAY_NAME};
+                    final Cursor c = context.getContentResolver().query(mediaUri, columns, mediaSelection, null, null);
                     if (c != null && c.moveToNext()) {
                         intent.putExtra(SettingsActivity.REMEMBER_COLLECTION_DESCRIPTION_SELECTION, c.getString(c.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)));
                         c.close();
@@ -1462,19 +1461,19 @@ public class Slideshow {
         return consumed;
     }
 
-    void onActivityResult(int requestCode, int resultCode, Intent data) {
+    void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
                 case DirectorySelector.SELECT_DIRECTORY: {
-                    Bundle extras = data.getExtras();
-                    String fileName = extras.getString(DirectorySelector.RETURN_DIRECTORY);
+                    final Bundle extras = data.getExtras();
+                    final String fileName = extras.getString(DirectorySelector.RETURN_DIRECTORY);
                     if (fileName != null) {
                         path = new File(fileName);
                     }
                     break;
                 }
                 case MediaStoreSelector.SELECT_MEDIA: {
-                    Bundle extras = data.getExtras();
+                    final Bundle extras = data.getExtras();
                     mediaUri = (Uri) extras.get(MediaStoreSelector.RETURN_URI);
                     mediaSelection = extras.getString(MediaStoreSelector.RETURN_SELECTION);
                     break;
@@ -1492,7 +1491,7 @@ public class Slideshow {
     private void adjustOptionsMenu() {
         if (menu != null) {
             menu.clear();
-            MenuInflater inflater = ((Activity) context).getMenuInflater();
+            final MenuInflater inflater = ((Activity) context).getMenuInflater();
             inflater.inflate(R.menu.options, menu);
             if (settingIgnoreMediaStore) {
                 menu.removeItem(R.id.allpictures);
@@ -1506,21 +1505,21 @@ public class Slideshow {
         }
     }
 
-    public void onCreateOptionsMenu(Menu menu) {
+    public void onCreateOptionsMenu(final Menu menu) {
         this.menu = menu;
         adjustOptionsMenu();
     }
 
-    public void onPrepareOptionsMenu(Menu menu) {
+    public void onPrepareOptionsMenu(final Menu menu) {
         if (Build.VERSION.SDK_INT >= 11) {
             // some Android versions(?) or environments(?) may call this actually just after the menu was created,
             // despite it is not going to be displayed
             showTouchInSystemBarHoneycomb();
         }
         if (settingIgnoreMediaStore) {
-            MenuItem usepicturesdir = menu.findItem(R.id.usepicturesdir);
-            MenuItem useextstoragedir = menu.findItem(R.id.useextstoragedir);
-            MenuItem userootdir = menu.findItem(R.id.userootdir);
+            final MenuItem usepicturesdir = menu.findItem(R.id.usepicturesdir);
+            final MenuItem useextstoragedir = menu.findItem(R.id.useextstoragedir);
+            final MenuItem userootdir = menu.findItem(R.id.userootdir);
             if (path == null) {
                 usepicturesdir.setChecked(false);
                 useextstoragedir.setChecked(false);
@@ -1534,13 +1533,13 @@ public class Slideshow {
                 usepicturesdir.setEnabled(false);
             }
         } else {
-            MenuItem allpictures = menu.findItem(R.id.allpictures);
+            final MenuItem allpictures = menu.findItem(R.id.allpictures);
             allpictures.setChecked(mediaSelection == null);
         }
     }
 
     private void saveRememberCollection() {
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
         if (settingRememberCollection) {
             editor.putString(PREF_DIRPATH, path.getAbsolutePath());
             editor.putString(PREF_MEDIA_URI, mediaUri.toString());
@@ -1554,8 +1553,8 @@ public class Slideshow {
     }
 
     private void showCentralToast(String text) {
-        Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-        View textView = toast.getView().findViewById(android.R.id.message);
+        final Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+        final View textView = toast.getView().findViewById(android.R.id.message);
         if (textView instanceof TextView) {
             ((TextView) textView).setGravity(Gravity.CENTER);
         }
@@ -1563,9 +1562,9 @@ public class Slideshow {
     }
 
     private String getNameOfSizeFilter() {
-        Resources res = context.getResources();
-        String[] filterIds = res.getStringArray(R.array.pref_size_filter_list_values);
-        String[] filterNames = res.getStringArray(R.array.pref_size_filter_list_titles);
+        final Resources res = context.getResources();
+        final String[] filterIds = res.getStringArray(R.array.pref_size_filter_list_values);
+        final String[] filterNames = res.getStringArray(R.array.pref_size_filter_list_titles);
         int filter = filterIds.length - 1;
         while (filter >= 0) {
             if (settingSizeFilter.equals(filterIds[filter])) {
@@ -1573,7 +1572,7 @@ public class Slideshow {
             }
             filter--;
         }
-        String filterText;
+        final String filterText;
         if (filter >= 0) {
             filterText = filterNames[filter];
         } else {
@@ -1596,7 +1595,7 @@ public class Slideshow {
     @TargetApi(11)
     private void doActionBarMenuUIVisibility() {
         if (context instanceof Activity) {
-            ActionBar ab = ((Activity) context).getActionBar();
+            final ActionBar ab = ((Activity) context).getActionBar();
             if (ab != null) {
                 ab.addOnMenuVisibilityListener(new ActionBar.OnMenuVisibilityListener() {
                     @Override
@@ -1626,7 +1625,7 @@ public class Slideshow {
             );
         }
         if (context instanceof Activity) {
-            ActionBar ab = ((Activity) context).getActionBar();
+            final ActionBar ab = ((Activity) context).getActionBar();
             if (ab != null) {
                 ab.show();
             }
@@ -1670,7 +1669,7 @@ public class Slideshow {
         }
     }
 
-    private void showFailedToast(Context context, PicInfo picture) {
+    private void showFailedToast(final Context context, final PicInfo picture) {
         Toast.makeText(context, context.getString(R.string.cannot_load, picture.picFile.getName()), Toast.LENGTH_SHORT).show();
     }
 

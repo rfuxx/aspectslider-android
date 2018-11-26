@@ -7,17 +7,17 @@ import android.media.ExifInterface;
 import java.io.IOException;
 
 public class BitmapUtils {
-    public static int getOrientationFromExif(String file) {
+    public static int getOrientationFromExif(final String file) {
         try {
-            ExifInterface exif = new ExifInterface(file);
+            final ExifInterface exif = new ExifInterface(file);
             return exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             System.err.println(e.getClass().getName() + " (" + e.getMessage() + ") for " + file);
             return ExifInterface.ORIENTATION_UNDEFINED;
         }
     }
 
-    public static int degreesToExif(int degrees) {
+    public static int degreesToExif(final int degrees) {
         switch(degrees) {
             case 0:
             case 360:
@@ -37,20 +37,20 @@ public class BitmapUtils {
         }
     }
 
-    public static Bitmap rotateBitmapDegrees(Bitmap bitmap, int orientation) {
+    public static Bitmap rotateBitmapDegrees(final Bitmap bitmap, final int orientation) {
         if(orientation == 0) {
             return bitmap;
         }
 
-        Matrix matrix = new Matrix();
+        final Matrix matrix = new Matrix();
         matrix.setRotate(orientation);
-        Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        final Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         bitmap.recycle();
         return bmRotated;
     }
 
-    public static Bitmap rotateBitmapExif(Bitmap bitmap, int orientation) {
-        Matrix matrix = new Matrix();
+    public static Bitmap rotateBitmapExif(final Bitmap bitmap, final int orientation) {
+        final Matrix matrix = new Matrix();
         switch (orientation) {
             case ExifInterface.ORIENTATION_NORMAL:
                 return bitmap;
@@ -81,7 +81,7 @@ public class BitmapUtils {
             default:
                 return bitmap;
         }
-        Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        final Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         bitmap.recycle();
         return bmRotated;
     }

@@ -46,7 +46,7 @@ public class DirectorySelector extends Activity {
 			this.file = file;
 			file.listFiles(new FileFilter() {
 				@Override
-				public boolean accept(File pathname) {
+				public boolean accept(final File pathname) {
                     if(pathname.isDirectory()) {
                         subdirs++;
                     }
@@ -58,28 +58,28 @@ public class DirectorySelector extends Activity {
 			});
 		}
 		@Override
-		public int compareTo(Entry other) {
+		public int compareTo(final Entry other) {
 			return file.getName().compareToIgnoreCase(other.file.getName());
 		}
 	}
 	static private class UpEntry extends Entry {
-		public UpEntry(File file) {
+		public UpEntry(final File file) {
 			this.file = file;
 		}
 	}
 
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle extras = getIntent().getExtras();
         File dir = Environment.getExternalStorageDirectory();
         if (extras != null) {
-        	String preferredStartDir = extras.getString(START_DIR);
+            final String preferredStartDir = extras.getString(START_DIR);
         	showHidden = extras.getBoolean(SHOW_HIDDEN, false);
         	onlyDirs = extras.getBoolean(ONLY_DIRS, true);
         	allowUp = extras.getBoolean(ALLOW_UP, true);
         	if(preferredStartDir != null) {
-            	File startDir = new File(preferredStartDir);
+                final File startDir = new File(preferredStartDir);
             	if(startDir.isDirectory()) {
             		dir = startDir;
             	}
@@ -90,12 +90,12 @@ public class DirectorySelector extends Activity {
         setTitle(dir.getAbsolutePath());
 
         final View.OnClickListener listButtonListener = new View.OnClickListener() {
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 returnDir((String) v.getTag());
             }
         };
 
-        Button thisdirbutton = (Button) findViewById(R.id.thisdirbutton);
+        final Button thisdirbutton = (Button) findViewById(R.id.thisdirbutton);
         String thisname = dir.getName();
         if(dir.getParentFile() == null) {
             thisname = getString(R.string.dir_root);
@@ -104,23 +104,23 @@ public class DirectorySelector extends Activity {
         thisdirbutton.setTag(dir.getAbsolutePath());
         thisdirbutton.setOnClickListener(listButtonListener);
 
-        GridView gv = (GridView) findViewById(R.id.dirgrid);
+        final GridView gv = (GridView) findViewById(R.id.dirgrid);
         gv.setTextFilterEnabled(true);
 
-        Point realSize = new Point();
+        final Point realSize = new Point();
         if (Build.VERSION.SDK_INT >= 17) {
             getRealSize(realSize);
         } else {
             realSize.x = getWindowManager().getDefaultDisplay().getWidth();
             realSize.y = getWindowManager().getDefaultDisplay().getHeight();
         }
-        int cellWidth = getResources().getDimensionPixelSize(R.dimen.dir_column_width_intended);
-        int numColumns = realSize.x/cellWidth;
+        final int cellWidth = getResources().getDimensionPixelSize(R.dimen.dir_column_width_intended);
+        final int numColumns = realSize.x/cellWidth;
         gv.setNumColumns(numColumns);
 
         if(!dir.canRead()) {
-        	Context context = getApplicationContext();
-        	Toast toast = Toast.makeText(context, R.string.dir_cannotread, Toast.LENGTH_LONG);
+            final Context context = getApplicationContext();
+            final Toast toast = Toast.makeText(context, R.string.dir_cannotread, Toast.LENGTH_LONG);
         	toast.show();
         	return;
         }
@@ -128,7 +128,7 @@ public class DirectorySelector extends Activity {
         final ArrayList<Entry> entries = new ArrayList<>();
         dir.listFiles(new FileFilter() {
 			@Override
-			public boolean accept(File file) {
+			public boolean accept(final File file) {
 				if(onlyDirs && !file.isDirectory())
 					return false;
 				if(!showHidden && file.isHidden())
@@ -141,24 +141,24 @@ public class DirectorySelector extends Activity {
         	Collections.sort(entries);
         }
 		if(allowUp) {
-			File parent = dir.getParentFile();
+            final File parent = dir.getParentFile();
 			if(parent != null) {
 				entries.add(0, new UpEntry(parent));
 			}
 		}
         gv.setAdapter(new ArrayAdapter<Entry>(this, R.layout.dirlist_item, entries) {
             @Override
-            public View getView(int position, View convertView, android.view.ViewGroup parent) {
+            public View getView(final int position, final View convertView, final android.view.ViewGroup parent) {
                 View view = convertView;
                 if (view == null) {
-                    LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    final LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     view = inflater.inflate(R.layout.dirlist_item, null);
                 }
 
-                Entry item = getItem(position);
-                TextView dirnameView = (TextView) view.findViewById(R.id.dirname);
-                TextView dirinfoView = (TextView) view.findViewById(R.id.dirinfo);
-                View dirbutton = view.findViewById(R.id.dirbutton);
+                final Entry item = getItem(position);
+                final TextView dirnameView = (TextView) view.findViewById(R.id.dirname);
+                final TextView dirinfoView = (TextView) view.findViewById(R.id.dirinfo);
+                final View dirbutton = view.findViewById(R.id.dirbutton);
                 if (item != null) {
                     if (item instanceof UpEntry) {
                         dirnameView.setText(R.string.dir_up);
@@ -175,7 +175,7 @@ public class DirectorySelector extends Activity {
                         dirnameView.setText(item.file.getName());
                         dirnameView.setVisibility(View.VISIBLE);
                         boolean isempty = false;
-                        Resources res = getResources();
+                        final Resources res = getResources();
                         String fileStr = null;
                         if(item.files > 0) {
                             fileStr = res.getQuantityString(R.plurals.dir_info_format_files, item.files, item.files);
@@ -215,14 +215,14 @@ public class DirectorySelector extends Activity {
         });
 
         gv.setOnItemClickListener(new OnItemClickListener() {
-        	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        		Entry entry = entries.get(position);
+        	public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+                final Entry entry = entries.get(position);
         		if(!entry.file.isDirectory())
         			return;
         		if(!(entry instanceof UpEntry) && entry.subdirs == 0 && entry.files == 0)
         			return;
-        		String path = entry.file.getAbsolutePath();
-                Intent intent = new Intent(DirectorySelector.this, DirectorySelector.class);
+                final String path = entry.file.getAbsolutePath();
+                final Intent intent = new Intent(DirectorySelector.this, DirectorySelector.class);
                 intent.putExtra(DirectorySelector.START_DIR, path);
                 intent.putExtra(DirectorySelector.SHOW_HIDDEN, showHidden);
                 intent.putExtra(DirectorySelector.ONLY_DIRS, onlyDirs);
@@ -232,15 +232,15 @@ public class DirectorySelector extends Activity {
         });
     }
 
-    private void returnDir(String path) {
-    	Intent result = new Intent();
+    private void returnDir(final String path) {
+        final Intent result = new Intent();
     	result.putExtra(RETURN_DIRECTORY, path);
         setResult(RESULT_OK, result);
     	finish();
     }
 
     @TargetApi(17)
-    private void getRealSize(Point realSize) {
+    private void getRealSize(final Point realSize) {
         getWindowManager().getDefaultDisplay().getRealSize(realSize);
     }
 }

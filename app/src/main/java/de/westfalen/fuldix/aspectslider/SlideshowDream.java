@@ -32,33 +32,33 @@ public class SlideshowDream extends DreamService {
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(final Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         slideshow.onConfigurationChanged(newConfig);
     }
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent me) {
+    public boolean dispatchTouchEvent(final MotionEvent me) {
         slideshow.dispatchTouchEvent(me);
         return super.dispatchTouchEvent(me);
     }
 
     @Override
-    public boolean dispatchTrackballEvent(MotionEvent event) {
-        boolean scons = super.dispatchTrackballEvent(event);
-        boolean cons = slideshow.onTrackballEvent(event);
+    public boolean dispatchTrackballEvent(final MotionEvent event) {
+        final boolean scons = super.dispatchTrackballEvent(event);
+        final boolean cons = slideshow.onTrackballEvent(event);
         return scons || cons;
     }
 
     @Override
-    public boolean dispatchGenericMotionEvent (MotionEvent event) {
-        boolean scons = super.dispatchGenericMotionEvent(event);
-        boolean cons = slideshow.onGenericMotionEvent(event);
+    public boolean dispatchGenericMotionEvent (final MotionEvent event) {
+        final boolean scons = super.dispatchGenericMotionEvent(event);
+        final boolean cons = slideshow.onGenericMotionEvent(event);
         return scons || cons;
     }
 
     @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
+    public boolean dispatchKeyEvent(final KeyEvent event) {
         if(event.getAction() == KeyEvent.ACTION_DOWN) {
             return slideshow.onKeyDown(event.getKeyCode());
         } else {
