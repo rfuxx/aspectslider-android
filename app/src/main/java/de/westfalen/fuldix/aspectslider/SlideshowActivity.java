@@ -5,6 +5,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.ResultReceiver;
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,7 +15,12 @@ import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
-public class SlideshowActivity extends Activity {
+import java.util.HashMap;
+import java.util.Map;
+
+import de.westfalen.fuldix.aspectslider.util.PermissionUtils;
+
+public class SlideshowActivity extends Activity implements PermissionUtils.PermissionResultReceiverSupport {
     private final Slideshow slideshow = new Slideshow(this);
 
     @Override
@@ -99,5 +107,20 @@ public class SlideshowActivity extends Activity {
     public boolean onKeyDown(final int keyCode, final KeyEvent event) {
         final boolean ret = slideshow.onKeyDown(keyCode);
         return ret || super.onKeyDown(keyCode, event);
+    }
+
+    private final SparseArray<ResultReceiver> permissionResultReceivers = new SparseArray<>();
+
+    @Override
+    public void setPermissionResultReceiver(final int requestCode, final ResultReceiver resultReceiver) {
+        permissionResultReceivers.put(requestCode, resultReceiver);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(final int requestCode, final String permissions[], final int[] grantResults) {
+        final ResultReceiver resultReceiver = permissionResultReceivers.get(requestCode);
+        if(resultReceiver != null) {
+            PermissionUtils.requestPermissionsResultToResultReceiver(requestCode, permissions, grantResults, resultReceiver);
+        }
     }
 }

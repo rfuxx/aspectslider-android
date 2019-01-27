@@ -38,4 +38,7 @@
     <string name="dir_info_format_empty" formatted="false">leer</string>
     <string name="dir_upto_format">nach %s</string>
     <string name="dir_cannotread">Verzeichnis nicht lesbar.</string>
+    <string name="permission_explain">Damit Bilder gesucht und angezeigt werden können, benötigt AspectSlider die Berechtigung, um im Speicher auf sie zuzugreifen.</string>
+    <string name="permission_missing">Eine notwendige Berechtigung für AspectSlider wurde abgelehnt.</string>
+    <string name="notification_channel_name_permission">Berechtigung</string>
 </resources>

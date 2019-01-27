@@ -1,5 +1,6 @@
 package de.westfalen.fuldix.aspectslider;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.westfalen.fuldix.aspectslider.util.BitmapUtils;
+import de.westfalen.fuldix.aspectslider.util.PermissionUtils;
 
 public class MediaStoreSelector extends Activity {
     public static final String START_URI = "startUri";
@@ -134,10 +136,26 @@ public class MediaStoreSelector extends Activity {
         }
     }
 
-	@Override
+    @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        final String[] requiredPermissions = new String[] { Manifest.permission.READ_EXTERNAL_STORAGE };
+        if(PermissionUtils.checkOrRequestPermissions(this, requiredPermissions)) {
+            setupUI();
+        }
+    }
 
+    @Override
+    public void onRequestPermissionsResult(final int requestCode, final String permissions[], final int[] grantResults) {
+        if(PermissionUtils.getMissingPermissions(permissions, grantResults).isEmpty()) {
+            setupUI();
+        } else {
+            PermissionUtils.toastDenied(this);
+            finish();
+        }
+    }
+
+    public void setupUI() {
         final Bundle extras = getIntent().getExtras();
         mediaUri = (Uri) extras.get(START_URI);
 

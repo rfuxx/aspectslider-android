@@ -1,7 +1,12 @@
 package de.westfalen.fuldix.aspectslider;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.res.Configuration;
+import android.os.Binder;
+import android.os.IBinder;
+import android.os.Parcel;
+import android.os.RemoteException;
 import android.service.dreams.DreamService;
 import android.view.KeyEvent;
 import android.view.MotionEvent;

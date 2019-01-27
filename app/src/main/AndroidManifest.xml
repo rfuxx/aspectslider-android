@@ -53,5 +53,8 @@
             android:name="de.westfalen.fuldix.aspectslider.DreamSettingsActivity"
             android:label="@string/title_activity_dream_settings" >
         </activity>
+        <activity
+            android:name=".util.PermissionUtils$PermissionRequestActivity" >
+        </activity>
     </application>
 </manifest>

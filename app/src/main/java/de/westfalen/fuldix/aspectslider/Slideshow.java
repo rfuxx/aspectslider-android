@@ -1,11 +1,13 @@
 package de.westfalen.fuldix.aspectslider;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -52,6 +54,7 @@ import de.westfalen.fuldix.aspectslider.swipe.SwipeGestureFilter;
 import de.westfalen.fuldix.aspectslider.swipe.SwipeGestureListener;
 import de.westfalen.fuldix.aspectslider.uithread.VisibilityRunnable;
 import de.westfalen.fuldix.aspectslider.util.BitmapUtils;
+import de.westfalen.fuldix.aspectslider.util.PermissionUtils;
 
 public class Slideshow {
     public static final String PREF_SIZEFILTER_NONE = "none";
@@ -126,6 +129,7 @@ public class Slideshow {
     private final SettingsListener settingsListener = new SettingsListener();
     private final ClearScreenRunnable clearScreenRunnable = new ClearScreenRunnable();
     private HideSystemBarAndNavHoneycomb hideSystemBarAndNavHoneycomb;
+    private InitialHideUIRunnable initialHideUIRunnable;
 
     private class InitialHideUIRunnable implements Runnable {
         final private Runnable runnable;
@@ -425,9 +429,28 @@ public class Slideshow {
         }
     };
 
-    private final Runnable picFinderRunnable = new Runnable() {
+    private class PicFinderRunnable extends PermissionUtils.PermissionResultAdapter implements Runnable {
+        @Override
+        public void onRequestPermissionsGranted(int resultCode) {
+            if(!isDaydream()) { // daydread had to be finish()ed in order for the permission popup to be displayable - hence when the user grants the permissions, it is not running anymore, until/unless it is restarted by the system
+                fileHandler.post(PicFinderRunnable.this);
+            }
+        }
+        @Override
+        public void onRequestPermissionsDenied(int resultCode) {
+            PermissionUtils.toastDenied(context);
+        }
         @Override
         public void run() {
+            final String[] requiredPermissions = new String[] { Manifest.permission.READ_EXTERNAL_STORAGE };
+            if(!PermissionUtils.checkOrRequestPermissions(context, requiredPermissions,this)) {
+                if(isDaydream()) {
+                    if (Build.VERSION.SDK_INT >= 17) {
+                        ((DreamService) context).finish();
+                    }
+                }
+                return;
+            }
             uiHandler.post(scanningShow);
             uiHandler.post(nopicsHide);
             pictures.clear();
@@ -470,7 +493,8 @@ public class Slideshow {
             }
             uiHandler.post(scanningHide);
         }
-    };
+    }
+    private final Runnable picFinderRunnable = new PicFinderRunnable();
 
     private final Runnable slideshowStarterRunnable = new Runnable() {
         @Override
@@ -1104,11 +1128,12 @@ public class Slideshow {
     void onCreate() {
         if (Build.VERSION.SDK_INT >= 11) {
             hideSystemBarAndNavHoneycomb = new HideSystemBarAndNavHoneycomb();
+            initialHideUIRunnable = new InitialHideUIRunnable(hideSystemBarAndNavHoneycomb);
             doActionBarMenuUIVisibility();
             // Use the InitialHideUIRunnable so that show() from onPrepareOptionsMenu
             // (see the comment there)
             // will not unschedule this hide task.
-            uiHandler.postDelayed(new InitialHideUIRunnable(hideSystemBarAndNavHoneycomb), 500);
+            uiHandler.postDelayed(initialHideUIRunnable, 500);
         }
         swipeDetector = new SwipeGestureFilter(context, swipeListener);
 
@@ -1367,6 +1392,7 @@ public class Slideshow {
         paused = true;
         slideshowHandler.removeCallbacks(slideshowRunnable);
         slideshowHandler.removeCallbacks(slideshowBackRunnable);
+        uiHandler.removeCallbacks(initialHideUIRunnable);
         uiHandler.removeCallbacks(hideSystemBarAndNavHoneycomb);
     }
 
