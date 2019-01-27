@@ -36,6 +36,7 @@ public class DreamSettingsActivity extends PreferenceActivity {
     public static final String PREF_DELAY = DREAM_PREFIX + SettingsActivity.PREF_DELAY;
     public static final String PREF_SPACE_BETWEEN_SLIDES = DREAM_PREFIX + SettingsActivity.PREF_SPACE_BETWEEN_SLIDES;
     public static final String PREF_ALLOW_OVERSCAN = DREAM_PREFIX + SettingsActivity.PREF_ALLOW_OVERSCAN;
+    public static final String PREF_KEEP_BRIGHT = DREAM_PREFIX + "keep_bright";
     public static final String PREF_RANDOM = DREAM_PREFIX + SettingsActivity.PREF_RANDOM;
     public static final String PREF_RANDOM_AGAIN = DREAM_PREFIX + SettingsActivity.PREF_RANDOM_AGAIN;
     public static final String PREF_RECURSE = DREAM_PREFIX + SettingsActivity.PREF_RECURSE;

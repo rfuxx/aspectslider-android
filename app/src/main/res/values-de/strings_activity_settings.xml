@@ -55,6 +55,9 @@
     <string name="pref_title_allow_overscan">Bilder abschneiden</string>
     <string name="pref_description_allow_overscan">Schwarze Balken ganz vermeiden</string>
 
+    <string name="pref_title_keep_bright">Hell lassen</string>
+    <string name="pref_description_keep_bright">Android soll den Bildschirm nicht abdunkeln</string>
+
     <string name="pref_title_size_filter">Bildgröße mindestens</string>
     <string-array name="pref_size_filter_list_titles">
         <item>Keine</item>

@@ -39,4 +39,10 @@
         android:summary="@string/pref_description_allow_overscan"
         android:defaultValue="false" />
 
+    <CheckBoxPreference
+        android:key="dream_keep_bright"
+        android:title="@string/pref_title_keep_bright"
+        android:summary="@string/pref_description_keep_bright"
+        android:defaultValue="false" />
+
 </PreferenceScreen>

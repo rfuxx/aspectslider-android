@@ -55,6 +55,9 @@
     <string name="pref_title_allow_overscan">Fit Whole Screen</string>
     <string name="pref_description_allow_overscan">Crop to avoid any black borders</string>
 
+    <string name="pref_title_keep_bright">Keep Bright</string>
+    <string name="pref_description_keep_bright">Request Android to not dim the screen</string>
+
     <string name="pref_title_size_filter">Minimum Picture Size</string>
     <string-array name="pref_size_filter_list_titles">
         <item>None</item>

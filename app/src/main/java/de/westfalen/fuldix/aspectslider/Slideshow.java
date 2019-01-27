@@ -81,6 +81,7 @@ public class Slideshow {
     private final String PREF_MEDIA_URI;
     private final String PREF_DIRPATH;
     private final String PREF_MEDIA_SELECTION;
+    private final String PREF_KEEP_BRIGHT;
 
     private final Context context;
     private int settingNextSlideAfter = 5000;
@@ -92,6 +93,7 @@ public class Slideshow {
     private String settingSizeFilter = Slideshow.PREF_SIZEFILTER_HD720P;
     private boolean settingRememberCollection = false;
     private boolean settingIgnoreMediaStore = false;
+    private boolean settingKeepBright = false;
 
     private SwipeGestureFilter swipeDetector;
     private VisibilityRunnable scanningShow;
@@ -295,6 +297,8 @@ public class Slideshow {
                 applyRememberCollection(sharedPref);
             } else if (key.equals(PREF_IGNORE_MEDIA_STORE)) {
                 applyIgnoreMediaStore(sharedPref);
+            } else if (key.equals(PREF_KEEP_BRIGHT)) {
+                applyKeepBright(sharedPref);
             }
         }
 
@@ -372,6 +376,15 @@ public class Slideshow {
             fileHandler.post(slideshowEndRunnable);
             scanRunning = false;
             fileHandler.post(picFinderRunnable);
+        }
+
+        void applyKeepBright(final SharedPreferences sharedPref) {
+            if(isDaydream()) {
+                settingKeepBright = sharedPref.getBoolean(PREF_KEEP_BRIGHT, false);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    ((DreamService) context).setScreenBright(settingKeepBright);
+                }
+            }
         }
     }
 
@@ -802,6 +815,7 @@ public class Slideshow {
             PREF_MEDIA_URI = DreamSettingsActivity.PREF_MEDIA_URI;
             PREF_DIRPATH = DreamSettingsActivity.PREF_DIRPATH;
             PREF_MEDIA_SELECTION = DreamSettingsActivity.PREF_MEDIA_SELECTION;
+            PREF_KEEP_BRIGHT = DreamSettingsActivity.PREF_KEEP_BRIGHT;
         } else {
             PREF_DELAY = SettingsActivity.PREF_DELAY;
             PREF_SPACE_BETWEEN_SLIDES = SettingsActivity.PREF_SPACE_BETWEEN_SLIDES;
@@ -815,6 +829,7 @@ public class Slideshow {
             PREF_MEDIA_URI = SettingsActivity.PREF_MEDIA_URI;
             PREF_DIRPATH = SettingsActivity.PREF_DIRPATH;
             PREF_MEDIA_SELECTION = SettingsActivity.PREF_MEDIA_SELECTION;
+            PREF_KEEP_BRIGHT = "";
         }
     }
 
@@ -1217,6 +1232,12 @@ public class Slideshow {
             mediaSelection = sharedPref.getString(PREF_MEDIA_SELECTION, null);
         }
         settingIgnoreMediaStore = sharedPref.getBoolean(PREF_IGNORE_MEDIA_STORE, false);
+        if(isDaydream()) {
+            settingKeepBright = sharedPref.getBoolean(PREF_KEEP_BRIGHT, false);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                ((DreamService) context).setScreenBright(settingKeepBright);
+            }
+        }
         adjustOptionsMenu();
     }
 
