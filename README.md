@@ -1,6 +1,9 @@
 # aspectslider-android
 Show a slideshow of pictures with mixed aspect ratios, and use the empty screenspace for sliding in/out next/previous images
 
+## Install via Google Play Store
+https://play.google.com/store/apps/details?id=de.westfalen.fuldix.aspectslider
+
 ## What this is
 - A viewer to show some pictures as a "calm" slideshow
 - My first Android app, so please bear with me if I should have got anything significanty wrong
