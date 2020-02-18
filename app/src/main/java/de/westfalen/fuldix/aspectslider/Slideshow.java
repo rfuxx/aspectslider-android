@@ -957,7 +957,7 @@ public class Slideshow {
 
     private Rect calcPicRectInDisplay(final PicInfo picture) {
         if (sw > 0 && sh > 0) {
-            final float imgRatio = (float) picture.width / (float) picture.height;
+            final float imgRatio = (float) picture.getWidth() / (float) picture.getHeight();
             if (shouldAlignToWidth(imgRatio)) {
                 final int ph = Math.round(sw / imgRatio);
                 return new Rect(0, (sh - ph) / 2, sw, (sh - ph) / 2 + ph);
@@ -1014,8 +1014,8 @@ public class Slideshow {
                     if (pictures.isEmpty()) {
                         return;
                     }
+                    nextPic = getPicInfo(nextPicture);
                 }
-                nextPic = getPicInfo(nextPicture);
                 synchronized (nextPic) {
                     if (vertical ? nextLeftOrTop < sh : nextLeftOrTop < sw) {
                         // in first "screen" which we will just display, load now
@@ -1038,7 +1038,7 @@ public class Slideshow {
                         }
                     }
                 }
-                float imgRatio = (float) nextPic.width / (float) nextPic.height;
+                float imgRatio = (float) nextPic.getWidth() / (float) nextPic.getHeight();
                 if (vertical) {
                     if (shouldAlignToWidth(imgRatio)) {
                         nextLeftOrTop += Math.round(sw / imgRatio);
@@ -1095,7 +1095,7 @@ public class Slideshow {
                         }
                     }
                 }
-                final float imgRatio = (float) nextPic.width / (float) nextPic.height;
+                final float imgRatio = (float) nextPic.getWidth() / (float) nextPic.getHeight();
                 if (vertical) {
                     if (shouldAlignToWidth(imgRatio)) {
                         nextRightOrBottom -= Math.round(sw / imgRatio) - 1;
@@ -1270,9 +1270,17 @@ public class Slideshow {
     }
 
     private PicInfo getPicInfo(int num) {
-        final int s = pictures.size();
-        num %= s;
-        return pictures.get(num);
+        do {
+            int s = pictures.size();
+            num %= s;
+            PicInfo pic = pictures.get(num);
+            if(pic.checkPicture() && acceptFileSize(pic)) {
+                return pic;
+            } else {
+                pictures.remove(num);
+            }
+        } while(!pictures.isEmpty());
+        return null;
     }
 
     private boolean acceptFileSize(final PicInfo pic) {
@@ -1284,41 +1292,47 @@ public class Slideshow {
     }
 
     private boolean acceptFileSizeInternalChecking(final PicInfo pic) {
-        final int longerside, shorterside;
-        if (pic.width > pic.height) {
-            longerside = pic.width;
-            shorterside = pic.height;
+        if(pic.isChecked()) {
+            final int longerside, shorterside;
+            final int picWidth = pic.getWidth();
+            final int picHeight = pic.getHeight();
+            if (picWidth > picHeight) {
+                longerside = picWidth;
+                shorterside = picHeight;
+            } else {
+                longerside = picHeight;
+                shorterside = picWidth;
+            }
+            switch (settingSizeFilter) {
+                case Slideshow.PREF_SIZEFILTER_VIDEO4K:
+                    return longerside >= 3840 && shorterside >= 2160;
+                case Slideshow.PREF_SIZEFILTER_HD1080P:
+                    return longerside >= 1920 && shorterside >= 1080;
+                case Slideshow.PREF_SIZEFILTER_HD720P:
+                    return longerside >= 1280 && shorterside >= 720;
+                case Slideshow.PREF_SIZEFILTER_NONE:
+                    return longerside >= 0 && shorterside >= 0;
+            }
+            final int longerScreenside, shorterScreenside;
+            if (sw > sh) {
+                longerScreenside = sw;
+                shorterScreenside = sh;
+            } else {
+                longerScreenside = sh;
+                shorterScreenside = sw;
+            }
+            switch (settingSizeFilter) {
+                case Slideshow.PREF_SIZEFILTER_FITSCREEN:
+                    return longerside >= longerScreenside || shorterside >= shorterScreenside;
+                case Slideshow.PREF_SIZEFILTER_ASLARGEASSCREEN:
+                    return longerside >= longerScreenside && shorterside >= shorterScreenside;
+                case Slideshow.PREF_SIZEFILTER_WRONGASPECT:
+                    return longerside >= shorterScreenside;
+                default:
+                    return longerside > 0 && shorterside > 0;
+            }
         } else {
-            longerside = pic.height;
-            shorterside = pic.width;
-        }
-        switch (settingSizeFilter) {
-            case Slideshow.PREF_SIZEFILTER_VIDEO4K:
-                return longerside >= 3840 && shorterside >= 2160;
-            case Slideshow.PREF_SIZEFILTER_HD1080P:
-                return longerside >= 1920 && shorterside >= 1080;
-            case Slideshow.PREF_SIZEFILTER_HD720P:
-                return longerside >= 1280 && shorterside >= 720;
-            case Slideshow.PREF_SIZEFILTER_NONE:
-                return longerside >= 0 && shorterside >= 0;
-        }
-        final int longerScreenside, shorterScreenside;
-        if (sw > sh) {
-            longerScreenside = sw;
-            shorterScreenside = sh;
-        } else {
-            longerScreenside = sh;
-            shorterScreenside = sw;
-        }
-        switch (settingSizeFilter) {
-            case Slideshow.PREF_SIZEFILTER_FITSCREEN:
-                return longerside >= longerScreenside || shorterside >= shorterScreenside;
-            case Slideshow.PREF_SIZEFILTER_ASLARGEASSCREEN:
-                return longerside >= longerScreenside && shorterside >= shorterScreenside;
-            case Slideshow.PREF_SIZEFILTER_WRONGASPECT:
-                return longerside >= shorterScreenside;
-            default:
-                return longerside > 0 && shorterside > 0;
+            return true; // accept and check later
         }
     }
 
@@ -1359,10 +1373,8 @@ public class Slideshow {
                         getFilesFromDir(file, result);
                     }
                 } else if (file.isFile() && !file.isHidden()) {
-                    BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-                    if (options.outMimeType != null) {
-                        final int orientation = BitmapUtils.getOrientationFromExif(file.getAbsolutePath());
-                        final PicInfo newPicInfo = new PicInfo(file, options.outWidth, options.outHeight, orientation);
+                    final PicInfo newPicInfo = new PicInfo(file.getAbsolutePath());
+                    if(newPicInfo.checkPicture()) {
                         insertNewPic(result, newPicInfo);
                     }
                 }
@@ -1400,7 +1412,7 @@ public class Slideshow {
                         }
                         orientation = BitmapUtils.getOrientationFromExif(fileName);
                     }
-                    final PicInfo newPic = new PicInfo(new File(fileName), width, height, orientation);
+                    final PicInfo newPic = new PicInfo(fileName, width, height, orientation);
                     insertNewPic(result, newPic);
                     cursor.moveToNext();
                 }
@@ -1717,7 +1729,7 @@ public class Slideshow {
     }
 
     private void showFailedToast(final Context context, final PicInfo picture) {
-        Toast.makeText(context, context.getString(R.string.cannot_load, picture.picFile.getName()), Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, context.getString(R.string.cannot_load, picture.picSource), Toast.LENGTH_SHORT).show();
     }
 
     @TargetApi(17)

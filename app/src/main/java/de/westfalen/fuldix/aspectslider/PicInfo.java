@@ -6,49 +6,84 @@ import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.os.Build;
 
-import java.io.File;
-
 import de.westfalen.fuldix.aspectslider.util.BitmapUtils;
 
 class PicInfo implements Comparable {
-    final File picFile;
-    private final int fileWidth;
-    private final int fileHeight;
-    final int width;
-    final int height;
-    private final int orientation;
+    final String picSource;
+    private int fileWidth;
+    private int fileHeight;
+    private Integer fileOrientation;
+    private int width;
+    private int height;
     Bitmap bitmap;
 
-    // we want the constructor to give the width/height as the file has, and the orientation.
-    // it is our responsibility here to switch width/height if the orietation demands,
-    // because the information are used for layout.
-    PicInfo(final File picFile, final int width, final int height, final int orientation) {
-        this.picFile = picFile;
-        this.orientation = orientation;
+    PicInfo(final String picSource) {
+        this(picSource, 0, 0, null);
+    }
+
+    PicInfo(final String picSource, final int width, final int height, final Integer orientation) {
+        this.picSource = picSource;
+        this.fileOrientation = orientation;
         this.fileWidth = width;
         this.fileHeight = height;
-        switch (orientation) {
-            case ExifInterface.ORIENTATION_TRANSPOSE:
-            case ExifInterface.ORIENTATION_ROTATE_90:
-            case ExifInterface.ORIENTATION_TRANSVERSE:
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                //noinspection SuspiciousNameCombination,SuspiciousNameCombination,SuspiciousNameCombination,SuspiciousNameCombination,SuspiciousNameCombination
-                this.width = fileHeight;
-                //noinspection SuspiciousNameCombination
-                this.height = fileWidth;
-                break;
-            default:
-                this.width = fileWidth;
-                this.height = fileHeight;
-        }
+        evaluateOrientation();
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 
     @Override
     public int compareTo(final Object another) {
         if(another instanceof PicInfo) {
-            return picFile.compareTo(((PicInfo) another).picFile);
+            return picSource.compareTo(((PicInfo) another).picSource);
         } else {
             return 1;
+        }
+    }
+
+    private void evaluateOrientation() {
+        if(fileOrientation != null) {
+            switch (fileOrientation) {
+                case ExifInterface.ORIENTATION_TRANSPOSE:
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                case ExifInterface.ORIENTATION_TRANSVERSE:
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    //noinspection SuspiciousNameCombination,SuspiciousNameCombination,SuspiciousNameCombination,SuspiciousNameCombination,SuspiciousNameCombination
+                    width = fileHeight;
+                    //noinspection SuspiciousNameCombination
+                    height = fileWidth;
+                    break;
+                default:
+                    width = fileWidth;
+                    height = fileHeight;
+            }
+        }
+    }
+
+    public boolean isChecked() {
+        return fileOrientation != null;
+    }
+
+    public boolean checkPicture() {
+        if(fileOrientation != null) {
+            return true;
+        }
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(picSource, options);
+        if (options.outMimeType != null) {
+            fileOrientation = BitmapUtils.getOrientationFromExif(picSource);
+            fileWidth = options.outWidth;
+            fileHeight = options.outHeight;
+            evaluateOrientation();
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -67,7 +102,7 @@ class PicInfo implements Comparable {
         } else {
             o.inSampleSize = fileHeight / size;
         }
-        bitmap = BitmapUtils.rotateBitmapExif(BitmapFactory.decodeFile(picFile.getAbsolutePath(), o), orientation);
+        bitmap = BitmapUtils.rotateBitmapExif(BitmapFactory.decodeFile(picSource, o), fileOrientation);
     }
 
     @TargetApi(10)
