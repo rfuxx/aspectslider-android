@@ -40,5 +40,4 @@
     <string name="dir_cannotread">Cannot read directory.</string>
     <string name="permission_explain">In order to find, show and let you browse through pictures, AspectSlider requires permission to access the pictures in the storage.</string>
     <string name="permission_missing">Required permission for AspectSlider has been denied.</string>
-    <string name="notification_channel_name_permission">Permission Request</string>
 </resources>
