@@ -1,8 +1,8 @@
 package de.westfalen.fuldix.aspectslider;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -11,21 +11,22 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.CursorAdapter;
+import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.westfalen.fuldix.aspectslider.util.BitmapUtils;
 import de.westfalen.fuldix.aspectslider.util.PermissionUtils;
@@ -37,104 +38,6 @@ public class MediaStoreSelector extends Activity {
     public static final int SELECT_MEDIA = 12;
 
     private Uri mediaUri;
-    private Cursor cursor;
-    private final Map<Long, Bitmap> bitmaps = new HashMap<>();
-    private int iconSize;
-    private int iconKind;
-
-    private class MediaCursorAdapter extends CursorAdapter
-    {
-        MediaCursorAdapter() {
-            super(MediaStoreSelector.this, cursor, false);
-        }
-
-        @Override
-        public View newView(final Context context, final Cursor cursor, final ViewGroup parent) {
-            final LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            return inflater.inflate(R.layout.medialist_item, null);
-        }
-
-        @Override
-        public void bindView(final View view, final Context context, final Cursor cursor) {
-            final TextView nameView = (TextView) view.findViewById(R.id.galleryname);
-            final TextView infoView = (TextView) view.findViewById(R.id.galleryinfo);
-            final int[] iconItems = { R.id.galleryicon1, R.id.galleryicon2, R.id.galleryicon3 };
-            final ImageView[] imageViews = new ImageView[iconItems.length];
-            for(int i=0; i<iconItems.length; i++) {
-                imageViews[i] = (ImageView) view.findViewById(iconItems[i]);
-            }
-
-            final String[] infoColumns = { "count(" + MediaStore.Images.Media._ID + ")", MediaStore.Images.Media.BUCKET_DISPLAY_NAME };
-            final String[] selectArgs = { cursor.getString(0) };
-            final Cursor buckCursor = getContentResolver().query(mediaUri, infoColumns, MediaStore.Images.Media.BUCKET_ID+"=?", selectArgs, null);
-            if(buckCursor != null && buckCursor.moveToFirst()) {
-                nameView.setText(buckCursor.getString(buckCursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)));
-                final int numPics = buckCursor.getInt(0);
-                infoView.setText(getResources().getQuantityString(R.plurals.select_gallery_num_pictures, numPics, numPics));
-                final String[] thmColumns = { MediaStore.Images.Media._ID, MediaStore.Images.Media.ORIENTATION };
-                final Cursor thmCursor = getContentResolver().query(mediaUri, thmColumns, MediaStore.Images.Media.BUCKET_ID + "=?", selectArgs, MediaStore.Images.Media.DISPLAY_NAME + " limit 3");
-                if (thmCursor != null && thmCursor.moveToFirst()) {
-                    while (!thmCursor.isAfterLast()) {
-                        final long imageId = thmCursor.getInt(thmCursor.getColumnIndex(MediaStore.Images.Media._ID));
-                        final int orientation = thmCursor.getInt(thmCursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION));
-                        final ImageView imageView = imageViews[thmCursor.getPosition()];
-                        synchronized (bitmaps) {
-                            imageView.setTag(imageId);
-                            if (bitmaps.containsKey(imageId)) {
-                                imageView.setImageBitmap(bitmaps.get(imageId));
-                                imageView.setVisibility(View.VISIBLE);
-                            } else {
-                                imageView.setVisibility(View.INVISIBLE);
-                                bitmaps.put(imageId, null);
-                                final AsyncTask<ImageView, Void, Bitmap> loader = new AsyncTask<ImageView, Void, Bitmap>() {
-                                    @Override
-                                    protected Bitmap doInBackground(final ImageView... params) {
-                                        final Bitmap bitmap;
-                                        if (Build.VERSION.SDK_INT >= 8) {
-                                            bitmap = scaleDownBitmap(BitmapUtils.rotateBitmapDegrees(MediaStore.Images.Thumbnails.getThumbnail(getContentResolver(), imageId, iconKind, null), orientation));
-                                        } else { // old versions use micro bitmap without scaling
-                                            bitmap = BitmapUtils.rotateBitmapDegrees(MediaStore.Images.Thumbnails.getThumbnail(getContentResolver(), imageId, iconKind, null), orientation);
-                                        }
-                                        synchronized (bitmaps) {
-                                            bitmaps.put(imageId, bitmap);
-                                        }
-                                        return bitmap;
-                                    }
-                                    protected void onPostExecute(final Bitmap result) {
-                                        final Object tag = imageView.getTag();
-                                        if(tag instanceof Long && (Long) tag == imageId) {
-                                            imageView.setImageBitmap(result);
-                                            imageView.setVisibility(View.VISIBLE);
-                                        } else {
-                                            MediaCursorAdapter.this.notifyDataSetChanged();
-                                        }
-                                    }
-                                };
-                                loader.execute(imageView);
-                            }
-                        }
-                        thmCursor.moveToNext();
-                    }
-                    for(int i=thmCursor.getCount(); i<iconItems.length; i++) {
-                        imageViews[i].setTag(null);
-                        imageViews[i].setVisibility(View.INVISIBLE);
-                    }
-                    thmCursor.close();
-                } else {
-                    for(int i=0; i<iconItems.length; i++) {
-                        imageViews[i].setTag(null);
-                        imageViews[i].setVisibility(View.INVISIBLE);
-                    }
-                }
-                buckCursor.close();
-            } else {
-                for(int i=0; i<iconItems.length; i++) {
-                    imageViews[i].setTag(null);
-                    imageViews[i].setVisibility(View.INVISIBLE);
-                }
-            }
-        }
-    }
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -156,31 +59,33 @@ public class MediaStoreSelector extends Activity {
     }
 
     public void setupUI() {
+        setTitle(R.string.select_gallery);
+
         final Bundle extras = getIntent().getExtras();
+        if(extras == null) {
+            setContentView(R.layout.activity_mediaselect_no_media);
+            return;
+        }
+
         mediaUri = (Uri) extras.get(START_URI);
 
         final Point realSize = new Point();
         if (Build.VERSION.SDK_INT >= 17) {
-            getRealSize(realSize);
+            getWindowManager().getDefaultDisplay().getRealSize(realSize);
         } else {
             realSize.x = getWindowManager().getDefaultDisplay().getWidth();
             realSize.y = getWindowManager().getDefaultDisplay().getHeight();
         }
 
-        setTitle(R.string.select_gallery);
 
-        final String[] columns = { "distinct " + MediaStore.Images.Media.BUCKET_ID + " as _id" };
-        cursor = getContentResolver().query(mediaUri, columns, null, null, MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-        if(cursor == null || !cursor.moveToFirst()) {
-            setContentView(R.layout.activity_mediaselect_no_media);
-            return;
-        }
+//        if(cursor == null || !cursor.moveToFirst()) {
+//            setContentView(R.layout.activity_mediaselect_no_media);
+//            return;
+//        }
         setContentView(R.layout.activity_mediaselect);
         final GridView av = (GridView) findViewById(R.id.grid);
-        av.setAdapter(new MediaCursorAdapter());
+        av.setAdapter(new GalleryAdapter(this, mediaUri));
         final Resources res = getResources();
-        iconSize = res.getDimensionPixelSize(R.dimen.gallery_icon_size);
-        iconKind = iconSize <= 96 ? MediaStore.Images.Thumbnails.MICRO_KIND : MediaStore.Images.Thumbnails.MINI_KIND;
         final int cellWidth = res.getDimensionPixelSize(R.dimen.gallery_column_width_intended);
         av.setNumColumns(realSize.x/cellWidth);
         av.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -203,23 +108,140 @@ public class MediaStoreSelector extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        synchronized (bitmaps) {
-            for(final Bitmap b : bitmaps.values()) {
-                if(b != null) {
-                    b.recycle();
+    }
+
+    private static class GalleryAdapter extends BaseAdapter {
+        private static class Gallery {
+            public final long id;
+            public final String name;
+            public final int numPics;
+            public final Bitmap[] bitmaps;
+            public Gallery(final long id, final String name, final int numPics, final Bitmap[] bitmaps) {
+                this.id = id;
+                this.name = name;
+                this.numPics = numPics;
+                this.bitmaps = bitmaps;
+            }
+        }
+
+        private static final int[] iconItems = { R.id.galleryicon1, R.id.galleryicon2, R.id.galleryicon3 };
+
+        private final List<Gallery> galleries = new ArrayList<>();
+        private final LayoutInflater inflater;
+
+        public GalleryAdapter(final Context context, final Uri mediaUri) {
+            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            final String[] galleryQueryColumns = { MediaStore.Images.Media.BUCKET_ID, MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media._ID, MediaStore.Images.Media.ORIENTATION };
+            final Cursor cursor = context.getContentResolver().query(mediaUri, galleryQueryColumns, null, null, MediaStore.Images.Media.BUCKET_DISPLAY_NAME + "," + MediaStore.Images.Media.DISPLAY_NAME + "," + MediaStore.Images.Media._ID);
+            if (cursor != null) {
+                try {
+                    if (cursor.moveToFirst()) {
+                        final Resources res = context.getResources();
+                        final int iconSize = res.getDimensionPixelSize(R.dimen.gallery_icon_size);
+                        final int iconKind = iconSize <= 96 ? MediaStore.Images.Thumbnails.MICRO_KIND : MediaStore.Images.Thumbnails.MINI_KIND;
+
+                        long bucketId = cursor.getLong(0);
+                        String bucketName = cursor.getString(1);
+                        final List<Long> ids = new ArrayList<>();
+                        final List<Integer> orientations = new ArrayList<>();
+                        do {
+                            long currentBucketId = cursor.getLong(0);
+                            if (currentBucketId == bucketId) {
+                                ids.add(cursor.getLong(2));
+                                orientations.add(cursor.getInt(3));
+                            }
+                            if (currentBucketId != bucketId || cursor.isLast()) {
+                                final int numPics = ids.size();
+                                final long[] thmbs;
+                                final int[] thmbOrientations;
+                                switch (numPics) {
+                                    case 1:
+                                        thmbs = new long[]{ids.get(0)};
+                                        thmbOrientations = new int[]{orientations.get(0)};
+                                        break;
+                                    case 2:
+                                        thmbs = new long[]{ids.get(0), ids.get(1)};
+                                        thmbOrientations = new int[]{orientations.get(0), orientations.get(1)};
+                                        break;
+                                    default:
+                                        thmbs = new long[]{ids.get(0), ids.get((numPics + 1) / 2), ids.get(numPics - 1)};
+                                        thmbOrientations = new int[]{orientations.get(0), orientations.get((numPics + 1) / 2), orientations.get(numPics - 1)};
+                                        break;
+                                }
+                                final Bitmap[] bitmaps = new Bitmap[thmbs.length];
+                                final Gallery gallery = new Gallery(bucketId, bucketName, numPics, bitmaps);
+                                for(int t=0; t<thmbs.length; t++) {
+                                    final long imageId = thmbs[t];
+                                    final int orientation = thmbOrientations[t];
+                                    if (Build.VERSION.SDK_INT >= 29) {
+                                        try {
+                                            bitmaps[t] = BitmapUtils.rotateBitmapDegrees(context.getContentResolver().loadThumbnail(ContentUris.withAppendedId(mediaUri, imageId), new Size(iconSize, iconSize), null), orientation);
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    } else if (Build.VERSION.SDK_INT >= 8) {
+                                        bitmaps[t] =  ThumbnailUtils.extractThumbnail(BitmapUtils.rotateBitmapDegrees(MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), imageId, iconKind, null), orientation), iconSize, iconSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+                                    } else { // old versions use micro bitmap without scaling
+                                        bitmaps[t] = BitmapUtils.rotateBitmapDegrees(MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), imageId, iconKind, null), orientation);
+                                    }
+                                }
+                                galleries.add(gallery);
+
+                                if(!cursor.isLast()) {
+                                    bucketId = currentBucketId;
+                                    bucketName = cursor.getString(1);
+                                    ids.clear();
+                                    orientations.clear();
+                                    ids.add(cursor.getLong(2));
+                                    orientations.add(cursor.getInt(3));
+                                }
+                            }
+                            cursor.moveToNext();
+                        } while (!cursor.isAfterLast());
+                    }
+                } finally {
+                    cursor.close();
                 }
             }
-            bitmaps.clear();
         }
-    }
 
-    @TargetApi(17)
-    private void getRealSize(final Point realSize) {
-        getWindowManager().getDefaultDisplay().getRealSize(realSize);
-    }
+        @Override
+        public int getCount() {
+            return galleries.size();
+        }
 
-    @TargetApi(8)
-    private Bitmap scaleDownBitmap(final Bitmap bitmap) {
-        return ThumbnailUtils.extractThumbnail(bitmap, iconSize, iconSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+        @Override
+        public Object getItem(int position) {
+            return galleries.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return galleries.get(position).id;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, final ViewGroup parent) {
+            if(convertView == null) {
+                convertView = inflater.inflate(R.layout.medialist_item, null);
+            }
+            final TextView nameView = convertView.findViewById(R.id.galleryname);
+            final TextView infoView = convertView.findViewById(R.id.galleryinfo);
+            final ImageView[] imageViews = new ImageView[iconItems.length];
+            for(int i=0; i<iconItems.length; i++) {
+                imageViews[i] = (ImageView) convertView.findViewById(iconItems[i]);
+            }
+            final Gallery gallery = galleries.get(position);
+            nameView.setText(gallery.name);
+            final int numPics = gallery.numPics;
+            infoView.setText(convertView.getResources().getQuantityString(R.plurals.select_gallery_num_pictures, numPics, numPics));
+            for(int v=0; v<imageViews.length; v++) {
+                final ImageView imageView = imageViews[v];
+                final Bitmap bitmap = v < gallery.bitmaps.length ? gallery.bitmaps[v] : null;
+                imageView.setImageBitmap(bitmap);
+                imageView.setVisibility(bitmap != null ? View.VISIBLE : View.INVISIBLE);
+            }
+            return convertView;
+        }
     }
 }

@@ -3,16 +3,46 @@ package de.westfalen.fuldix.aspectslider.util;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.os.Build;
 
+import java.io.File;
+import java.io.FileDescriptor;
 import java.io.IOException;
+import java.io.InputStream;
+
+import de.westfalen.fuldix.aspectslider.ContentResolverAndUri;
 
 public class BitmapUtils {
-    public static int getOrientationFromExif(final String file) {
+    public static int getOrientationFromExif(final Object pic) {
         try {
-            final ExifInterface exif = new ExifInterface(file);
+            final ExifInterface exif;
+            if(Build.VERSION.SDK_INT >= 24 && pic instanceof ContentResolverAndUri) {
+                final ContentResolverAndUri cu = (ContentResolverAndUri) pic;
+                try {
+                    final InputStream inputStream = cu.contentResolver.openInputStream(cu.uri);
+                    if(inputStream != null) {
+                        exif = new ExifInterface(inputStream);
+                    } else {
+                        return ExifInterface.ORIENTATION_UNDEFINED;
+                    }
+                } catch (final IOException e) {
+                    e.printStackTrace();
+                    return ExifInterface.ORIENTATION_UNDEFINED;
+                }
+            } else if(Build.VERSION.SDK_INT >= 24 && pic instanceof FileDescriptor) {
+                exif = new ExifInterface((FileDescriptor) pic);
+            } else if(pic instanceof String) {
+                exif = new ExifInterface((String) pic);
+            } else if(Build.VERSION.SDK_INT >= 29 && pic instanceof File) {
+                exif = new ExifInterface((File) pic);
+            } else if(Build.VERSION.SDK_INT >= 24 && pic instanceof InputStream) {
+                exif = new ExifInterface((InputStream) pic);
+            } else {
+               return ExifInterface.ORIENTATION_UNDEFINED;
+            }
             return exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
         } catch (final IOException e) {
-            System.err.println(e.getClass().getName() + " (" + e.getMessage() + ") for " + file);
+            System.err.println(e.getClass().getName() + " (" + e.getMessage() + ") for " + pic);
             return ExifInterface.ORIENTATION_UNDEFINED;
         }
     }

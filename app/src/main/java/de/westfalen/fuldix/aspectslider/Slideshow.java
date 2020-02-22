@@ -4,10 +4,11 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -1359,8 +1360,6 @@ public class Slideshow {
     private void getFilesFromDir(final File path, final List<PicInfo> result) {
         final File[] files = path.listFiles();
         if (files != null) {
-            final BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
             if (!settingRandom) {
                 Arrays.sort(files);
             }
@@ -1373,7 +1372,7 @@ public class Slideshow {
                         getFilesFromDir(file, result);
                     }
                 } else if (file.isFile() && !file.isHidden()) {
-                    final PicInfo newPicInfo = new PicInfo(file.getAbsolutePath());
+                    final PicInfo newPicInfo = new PicInfo(file);
                     if(newPicInfo.checkPicture()) {
                         insertNewPic(result, newPicInfo);
                     }
@@ -1383,23 +1382,35 @@ public class Slideshow {
     }
 
     private void getFilesFromMediaStore(final Vector<PicInfo> result) {
+        final ContentResolver contentResolver = context.getContentResolver();
+        final String[] columnsV28 = {MediaStore.Images.Media._ID, MediaStore.Images.Media.WIDTH, MediaStore.Images.Media.HEIGHT, MediaStore.Images.Media.ORIENTATION};
         final String[] columnsV16 = {MediaStore.Images.Media.DATA, MediaStore.Images.Media.WIDTH, MediaStore.Images.Media.HEIGHT, MediaStore.Images.Media.ORIENTATION};
         final String[] columnsOld = {MediaStore.Images.Media.DATA};
-        final String[] columns = (Build.VERSION.SDK_INT >= 16) ? columnsV16 : columnsOld;
+        final String[] columns = (Build.VERSION.SDK_INT >= 28) ? columnsV28 : (Build.VERSION.SDK_INT >= 16) ? columnsV16 : columnsOld;
         final String sort = settingRandom ? null : MediaStore.MediaColumns.DATA;  // is then compatible with sort()ing the PicInfos
-        final Cursor cursor = context.getContentResolver().query(mediaUri, columns, mediaSelection, null, sort);
+        final Cursor cursor = contentResolver.query(mediaUri, columns, mediaSelection, null, sort);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 while (!cursor.isAfterLast()) {
-                    final String fileName = cursor.getString(0);
+                    final Object picSource;
                     final int width;
                     final int height;
                     final int orientation;
-                    if (Build.VERSION.SDK_INT >= 16) {
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        final long imageId = cursor.getLong(0);
+                        final Uri uri = ContentUris.withAppendedId(mediaUri, imageId);
+                        picSource = new ContentResolverAndUri(contentResolver, uri);
+                        width = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.WIDTH));
+                        height = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.HEIGHT));
+                        orientation = BitmapUtils.degreesToExif(cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION)));
+                    } else if (Build.VERSION.SDK_INT >= 16) {
+                        picSource = cursor.getString(0);
                         width = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.WIDTH));
                         height = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.HEIGHT));
                         orientation = BitmapUtils.degreesToExif(cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION)));
                     } else {
+                        String fileName = cursor.getString(0);
+                        picSource = fileName;
                         final BitmapFactory.Options options = new BitmapFactory.Options();
                         options.inJustDecodeBounds = true;
                         BitmapFactory.decodeFile(fileName, options);
@@ -1410,9 +1421,9 @@ public class Slideshow {
                             cursor.moveToNext();
                             continue;
                         }
-                        orientation = BitmapUtils.getOrientationFromExif(fileName);
+                        orientation = BitmapUtils.getOrientationFromExif(picSource);
                     }
-                    final PicInfo newPic = new PicInfo(fileName, width, height, orientation);
+                    final PicInfo newPic = new PicInfo(picSource, width, height, orientation);
                     insertNewPic(result, newPic);
                     cursor.moveToNext();
                 }
