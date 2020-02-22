@@ -13,6 +13,7 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Size;
 import android.view.LayoutInflater;
@@ -27,6 +28,9 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import de.westfalen.fuldix.aspectslider.util.BitmapUtils;
 import de.westfalen.fuldix.aspectslider.util.PermissionUtils;
@@ -37,11 +41,15 @@ public class MediaStoreSelector extends Activity {
     public static final String RETURN_SELECTION = "returnBucketId";
     public static final int SELECT_MEDIA = 12;
 
+    private ThreadPoolExecutor executor;
+    private Handler uiHandler;
     private Uri mediaUri;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        executor = new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors(), 1, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+        uiHandler = new Handler();
         final String[] requiredPermissions = new String[] { Manifest.permission.READ_EXTERNAL_STORAGE };
         if(PermissionUtils.checkOrRequestPermissions(this, requiredPermissions)) {
             setupUI();
@@ -78,13 +86,10 @@ public class MediaStoreSelector extends Activity {
         }
 
 
-//        if(cursor == null || !cursor.moveToFirst()) {
-//            setContentView(R.layout.activity_mediaselect_no_media);
-//            return;
-//        }
         setContentView(R.layout.activity_mediaselect);
         final GridView av = (GridView) findViewById(R.id.grid);
-        av.setAdapter(new GalleryAdapter(this, mediaUri));
+        final GalleryAdapter galleryAdapter = new GalleryAdapter(this);
+        av.setAdapter(galleryAdapter);
         final Resources res = getResources();
         final int cellWidth = res.getDimensionPixelSize(R.dimen.gallery_column_width_intended);
         av.setNumColumns(realSize.x/cellWidth);
@@ -94,44 +99,33 @@ public class MediaStoreSelector extends Activity {
                 returnSelection(id);
             }
         });
+
+        executor.execute(new MediaStoreGalleryQueryRunnable(this, mediaUri, galleryAdapter, uiHandler));
     }
 
-    private void returnSelection(final long bucketId) {
-        final Intent result = new Intent();
-        final String selection = MediaStore.Images.Media.BUCKET_ID + "=" + bucketId;
-        result.putExtra(RETURN_SELECTION, selection);
-        result.putExtra(RETURN_URI, mediaUri);
-        setResult(RESULT_OK, result);
-    	finish();
+    private class NoPicturesRunnable implements Runnable {
+        @Override
+        public void run() {
+            setContentView(R.layout.activity_mediaselect_no_media);
+        }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
+    private static class MediaStoreGalleryQueryRunnable implements Runnable {
+        private final MediaStoreSelector context;
+        private final Uri mediaUri;
+        private final GalleryAdapter galleryAdapter;
+        private final Handler uiHandler;
 
-    private static class GalleryAdapter extends BaseAdapter {
-        private static class Gallery {
-            public final long id;
-            public final String name;
-            public final int numPics;
-            public final Bitmap[] bitmaps;
-            public Gallery(final long id, final String name, final int numPics, final Bitmap[] bitmaps) {
-                this.id = id;
-                this.name = name;
-                this.numPics = numPics;
-                this.bitmaps = bitmaps;
-            }
+        public MediaStoreGalleryQueryRunnable(final MediaStoreSelector context, final Uri mediaUri, final GalleryAdapter galleryAdapter, final Handler uiHandler) {
+            this.context = context;
+            this.mediaUri = mediaUri;
+            this.galleryAdapter = galleryAdapter;
+            this.uiHandler = uiHandler;
         }
 
-        private static final int[] iconItems = { R.id.galleryicon1, R.id.galleryicon2, R.id.galleryicon3 };
-
-        private final List<Gallery> galleries = new ArrayList<>();
-        private final LayoutInflater inflater;
-
-        public GalleryAdapter(final Context context, final Uri mediaUri) {
-            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            final String[] galleryQueryColumns = { MediaStore.Images.Media.BUCKET_ID, MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media._ID, MediaStore.Images.Media.ORIENTATION };
+        @Override
+        public void run() {
+            final String[] galleryQueryColumns = {MediaStore.Images.Media.BUCKET_ID, MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media._ID, MediaStore.Images.Media.ORIENTATION};
             final Cursor cursor = context.getContentResolver().query(mediaUri, galleryQueryColumns, null, null, MediaStore.Images.Media.BUCKET_DISPLAY_NAME + "," + MediaStore.Images.Media.DISPLAY_NAME + "," + MediaStore.Images.Media._ID);
             if (cursor != null) {
                 try {
@@ -170,7 +164,7 @@ public class MediaStoreSelector extends Activity {
                                 }
                                 final Bitmap[] bitmaps = new Bitmap[thmbs.length];
                                 final Gallery gallery = new Gallery(bucketId, bucketName, numPics, bitmaps);
-                                for(int t=0; t<thmbs.length; t++) {
+                                for (int t = 0; t < thmbs.length; t++) {
                                     final long imageId = thmbs[t];
                                     final int orientation = thmbOrientations[t];
                                     if (Build.VERSION.SDK_INT >= 29) {
@@ -180,14 +174,14 @@ public class MediaStoreSelector extends Activity {
                                             e.printStackTrace();
                                         }
                                     } else if (Build.VERSION.SDK_INT >= 8) {
-                                        bitmaps[t] =  ThumbnailUtils.extractThumbnail(BitmapUtils.rotateBitmapDegrees(MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), imageId, iconKind, null), orientation), iconSize, iconSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+                                        bitmaps[t] = ThumbnailUtils.extractThumbnail(BitmapUtils.rotateBitmapDegrees(MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), imageId, iconKind, null), orientation), iconSize, iconSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
                                     } else { // old versions use micro bitmap without scaling
                                         bitmaps[t] = BitmapUtils.rotateBitmapDegrees(MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), imageId, iconKind, null), orientation);
                                     }
                                 }
-                                galleries.add(gallery);
+                                uiHandler.post(galleryAdapter.new AddGalleryRunnable(gallery));
 
-                                if(!cursor.isLast()) {
+                                if (!cursor.isLast()) {
                                     bucketId = currentBucketId;
                                     bucketName = cursor.getString(1);
                                     ids.clear();
@@ -198,11 +192,52 @@ public class MediaStoreSelector extends Activity {
                             }
                             cursor.moveToNext();
                         } while (!cursor.isAfterLast());
+                        return; // galleries were found and handed over to the galleryAdapter - return successfully
                     }
                 } finally {
                     cursor.close();
                 }
+                uiHandler.post(context.new NoPicturesRunnable());
             }
+        }
+    }
+
+    private void returnSelection(final long bucketId) {
+        final Intent result = new Intent();
+        final String selection = MediaStore.Images.Media.BUCKET_ID + "=" + bucketId;
+        result.putExtra(RETURN_SELECTION, selection);
+        result.putExtra(RETURN_URI, mediaUri);
+        setResult(RESULT_OK, result);
+    	finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executor.shutdownNow();
+    }
+
+    private static class Gallery {
+        public final long id;
+        public final String name;
+        public final int numPics;
+        public final Bitmap[] bitmaps;
+        public Gallery(final long id, final String name, final int numPics, final Bitmap[] bitmaps) {
+            this.id = id;
+            this.name = name;
+            this.numPics = numPics;
+            this.bitmaps = bitmaps;
+        }
+    }
+
+    private static class GalleryAdapter extends BaseAdapter {
+        private static final int[] iconItems = { R.id.galleryicon1, R.id.galleryicon2, R.id.galleryicon3 };
+
+        private final List<Gallery> galleries = new ArrayList<Gallery>();
+        private final LayoutInflater inflater;
+
+        public GalleryAdapter(final Context context) {
+            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         @Override
@@ -243,5 +278,19 @@ public class MediaStoreSelector extends Activity {
             }
             return convertView;
         }
+
+        public class AddGalleryRunnable implements Runnable {
+            private final Gallery gallery;
+            public AddGalleryRunnable(final Gallery gallery) {
+                this.gallery = gallery;
+            }
+
+            @Override
+            public void run() {
+                galleries.add(gallery);
+                notifyDataSetChanged();
+            }
+        }
+
     }
 }
