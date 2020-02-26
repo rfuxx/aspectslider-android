@@ -2,6 +2,7 @@ package de.westfalen.fuldix.aspectslider;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -27,7 +28,10 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -88,7 +92,7 @@ public class MediaStoreSelector extends Activity {
 
         setContentView(R.layout.activity_mediaselect);
         final GridView av = (GridView) findViewById(R.id.grid);
-        final GalleryAdapter galleryAdapter = new GalleryAdapter(this);
+        final GalleryAdapter galleryAdapter = new GalleryAdapter(this, mediaUri, executor);
         av.setAdapter(galleryAdapter);
         final Resources res = getResources();
         final int cellWidth = res.getDimensionPixelSize(R.dimen.gallery_column_width_intended);
@@ -130,10 +134,6 @@ public class MediaStoreSelector extends Activity {
             if (cursor != null) {
                 try {
                     if (cursor.moveToFirst()) {
-                        final Resources res = context.getResources();
-                        final int iconSize = res.getDimensionPixelSize(R.dimen.gallery_icon_size);
-                        final int iconKind = iconSize <= 96 ? MediaStore.Images.Thumbnails.MICRO_KIND : MediaStore.Images.Thumbnails.MINI_KIND;
-
                         long bucketId = cursor.getLong(0);
                         String bucketName = cursor.getString(1);
                         final List<Long> ids = new ArrayList<>();
@@ -158,27 +158,11 @@ public class MediaStoreSelector extends Activity {
                                         thmbOrientations = new int[]{orientations.get(0), orientations.get(1)};
                                         break;
                                     default:
-                                        thmbs = new long[]{ids.get(0), ids.get((numPics + 1) / 2), ids.get(numPics - 1)};
-                                        thmbOrientations = new int[]{orientations.get(0), orientations.get((numPics + 1) / 2), orientations.get(numPics - 1)};
+                                        thmbs = new long[]{ids.get(0), ids.get(numPics / 2), ids.get(numPics - 1)};
+                                        thmbOrientations = new int[]{orientations.get(0), orientations.get(numPics / 2), orientations.get(numPics - 1)};
                                         break;
                                 }
-                                final Bitmap[] bitmaps = new Bitmap[thmbs.length];
-                                final Gallery gallery = new Gallery(bucketId, bucketName, numPics, bitmaps);
-                                for (int t = 0; t < thmbs.length; t++) {
-                                    final long imageId = thmbs[t];
-                                    final int orientation = thmbOrientations[t];
-                                    if (Build.VERSION.SDK_INT >= 29) {
-                                        try {
-                                            bitmaps[t] = BitmapUtils.rotateBitmapDegrees(context.getContentResolver().loadThumbnail(ContentUris.withAppendedId(mediaUri, imageId), new Size(iconSize, iconSize), null), orientation);
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                    } else if (Build.VERSION.SDK_INT >= 8) {
-                                        bitmaps[t] = ThumbnailUtils.extractThumbnail(BitmapUtils.rotateBitmapDegrees(MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), imageId, iconKind, null), orientation), iconSize, iconSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
-                                    } else { // old versions use micro bitmap without scaling
-                                        bitmaps[t] = BitmapUtils.rotateBitmapDegrees(MediaStore.Images.Thumbnails.getThumbnail(context.getContentResolver(), imageId, iconKind, null), orientation);
-                                    }
-                                }
+                                final Gallery gallery = new Gallery(bucketId, bucketName, numPics, thmbs, thmbOrientations);
                                 uiHandler.post(galleryAdapter.new AddGalleryRunnable(gallery));
 
                                 if (!cursor.isLast()) {
@@ -221,12 +205,14 @@ public class MediaStoreSelector extends Activity {
         public final long id;
         public final String name;
         public final int numPics;
-        public final Bitmap[] bitmaps;
-        public Gallery(final long id, final String name, final int numPics, final Bitmap[] bitmaps) {
+        public final long[] thumbnailIds;
+        public final int[] thumbnailOrientations;
+        public Gallery(final long id, final String name, final int numPics, final long[] thumbnailIds, final int[] thumbnailOrientations) {
             this.id = id;
             this.name = name;
             this.numPics = numPics;
-            this.bitmaps = bitmaps;
+            this.thumbnailIds = thumbnailIds;
+            this.thumbnailOrientations = thumbnailOrientations;
         }
     }
 
@@ -234,10 +220,22 @@ public class MediaStoreSelector extends Activity {
         private static final int[] iconItems = { R.id.galleryicon1, R.id.galleryicon2, R.id.galleryicon3 };
 
         private final List<Gallery> galleries = new ArrayList<Gallery>();
+        private final Map<Long, Bitmap> bitmaps = new HashMap<>();
+        private final int iconSize;
+        private final Size iconSizeSize;
+        private final int iconKind;
         private final LayoutInflater inflater;
+        private final Uri mediaUri;
+        private final Executor executor;
 
-        public GalleryAdapter(final Context context) {
+        public GalleryAdapter(final Context context, final Uri mediaUri, final Executor executor) {
+            final Resources res = context.getResources();
+            iconSize = res.getDimensionPixelSize(R.dimen.gallery_icon_size);
+            iconSizeSize = Build.VERSION.SDK_INT >= 21 ? new Size(iconSize, iconSize) : null;
+            iconKind = iconSize <= 96 ? MediaStore.Images.Thumbnails.MICRO_KIND : MediaStore.Images.Thumbnails.MINI_KIND;
             inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            this.mediaUri = mediaUri;
+            this.executor = executor;
         }
 
         @Override
@@ -270,11 +268,23 @@ public class MediaStoreSelector extends Activity {
             nameView.setText(gallery.name);
             final int numPics = gallery.numPics;
             infoView.setText(convertView.getResources().getQuantityString(R.plurals.select_gallery_num_pictures, numPics, numPics));
+            for(int v=0; v<gallery.thumbnailIds.length; v++) {
+                final long thumbnailId = gallery.thumbnailIds[v];
+                final ImageView imageView = imageViews[v];
+                imageView.setTag(thumbnailId);
+                final Bitmap bitmap = bitmaps.get(thumbnailId);
+                if(bitmap != null) {
+                    imageView.setImageBitmap(bitmap);
+                    imageView.setVisibility(View.VISIBLE);
+                } else if(!bitmaps.containsKey(thumbnailId)) { // null in the map marks that loading is already in progress, no second loaded should be started
+                    bitmaps.put(thumbnailId, null);
+                    imageView.setVisibility(View.INVISIBLE);
+                    executor.execute(new ThumbnailLoader(imageView, thumbnailId, gallery.thumbnailOrientations[v]));
+                }
+            }
             for(int v=0; v<imageViews.length; v++) {
                 final ImageView imageView = imageViews[v];
-                final Bitmap bitmap = v < gallery.bitmaps.length ? gallery.bitmaps[v] : null;
-                imageView.setImageBitmap(bitmap);
-                imageView.setVisibility(bitmap != null ? View.VISIBLE : View.INVISIBLE);
+                imageView.setVisibility(View.INVISIBLE);
             }
             return convertView;
         }
@@ -292,5 +302,59 @@ public class MediaStoreSelector extends Activity {
             }
         }
 
+        public class ThumbnailLoader implements Runnable {
+            private final ImageView imageView;
+            private final long imageId;
+            private final int orientation;
+
+            public ThumbnailLoader(final ImageView imageView, final long imageId, final int orientation) {
+                this.imageView = imageView;
+                this.imageId = imageId;
+                this.orientation = orientation;
+            }
+
+            @Override
+            public void run() {
+                final ContentResolver contentResolver = imageView.getContext().getContentResolver();
+                Bitmap bitmap;
+                if (Build.VERSION.SDK_INT >= 29) {
+                    try {
+                        bitmap = contentResolver.loadThumbnail(ContentUris.withAppendedId(mediaUri, imageId), iconSizeSize, null); // rotation according to orientation is handled automatically by this API29 function
+//                        bitmap = BitmapUtils.rotateBitmapDegrees(contentResolver.loadThumbnail(ContentUris.withAppendedId(mediaUri, imageId), iconSizeSize, null), orientation);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        bitmap = null;
+                    }
+                } else if (Build.VERSION.SDK_INT >= 8) {
+                    bitmap = ThumbnailUtils.extractThumbnail(BitmapUtils.rotateBitmapDegrees(MediaStore.Images.Thumbnails.getThumbnail(contentResolver, imageId, iconKind, null), orientation), iconSize, iconSize, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+                } else { // old versions use micro bitmap without scaling
+                    bitmap = BitmapUtils.rotateBitmapDegrees(MediaStore.Images.Thumbnails.getThumbnail(contentResolver, imageId, iconKind, null), orientation);
+                }
+                bitmaps.put(imageId, bitmap);
+                if(bitmap != null) {
+                    imageView.post(new LazyLoadThumbnailUpdateRunnable(imageView, imageId, bitmap));
+                }
+            }
+        }
+    }
+
+    public static class LazyLoadThumbnailUpdateRunnable implements Runnable {
+        private final ImageView imageView;
+        private final long imageId;
+        private final Bitmap bitmap;
+
+        public LazyLoadThumbnailUpdateRunnable(final ImageView imageView, final long imageId, final Bitmap bitmap) {
+            this.imageView = imageView;
+            this.imageId = imageId;
+            this.bitmap = bitmap;
+        }
+
+        public void run() {
+            final Object tag = imageView.getTag();
+            if(tag instanceof Long && (Long) tag == imageId) { // update only if the imageview has not been reused for some other element already
+                imageView.setImageBitmap(bitmap);
+                imageView.setVisibility(View.VISIBLE);
+            }
+        }
     }
 }
