@@ -2,4 +2,7 @@
 <resources>
     <style name="AppBaseTheme" parent="android:Theme.Material" />
     <style name="FullscreenBaseTheme" parent="AppBaseTheme" />
+    <style name="FullscreenActionBarStyle" parent="android:Widget.Material.ActionBar">
+        <item name="android:background">@color/black_overlay</item>
+    </style>
 </resources>
