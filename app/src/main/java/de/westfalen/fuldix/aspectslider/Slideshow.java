@@ -1506,11 +1506,18 @@ public class Slideshow {
                 if (mediaSelection == null || mediaSelection.equals("")) {
                     intent.putExtra(SettingsActivity.REMEMBER_COLLECTION_DESCRIPTION_SELECTION, context.getString(R.string.menu_allpictures));
                 } else {
-                    final String[] columns = {"distinct " + MediaStore.Images.Media.BUCKET_DISPLAY_NAME};
+                    final String[] columns = {MediaStore.Images.Media.BUCKET_DISPLAY_NAME};
                     final Cursor c = context.getContentResolver().query(mediaUri, columns, mediaSelection, null, null);
-                    if (c != null && c.moveToNext()) {
-                        intent.putExtra(SettingsActivity.REMEMBER_COLLECTION_DESCRIPTION_SELECTION, c.getString(c.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)));
-                        c.close();
+                    if (c != null) {
+                        try {
+                            if(c.moveToNext()) {
+                                intent.putExtra(SettingsActivity.REMEMBER_COLLECTION_DESCRIPTION_SELECTION, c.getString(c.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)));
+                            } else {
+                                intent.putExtra(SettingsActivity.REMEMBER_COLLECTION_DESCRIPTION_SELECTION, context.getString(R.string.pref_description_remember_collection_unknown));
+                            }
+                        } finally {
+                            c.close();
+                        }
                     } else {
                         intent.putExtra(SettingsActivity.REMEMBER_COLLECTION_DESCRIPTION_SELECTION, context.getString(R.string.pref_description_remember_collection_unknown));
                     }
