@@ -531,6 +531,9 @@ public class Slideshow {
                         currentPicture = 0;
                     }
                     picture = getPicInfo(currentPicture);
+                    if(picture == null) {
+                        return;
+                    }
                 }
                 synchronized (picture) {
                     if (picture.bitmap == null || picture.bitmap.isRecycled()) {
@@ -695,6 +698,9 @@ public class Slideshow {
                             currentPicture = 0;
                         }
                         picture = getPicInfo(currentPicture);
+                        if(picture == null) {
+                            return;
+                        }
                     }
                     synchronized (picture) {
                         if (picture.bitmap == null || picture.bitmap.isRecycled()) {
@@ -760,6 +766,9 @@ public class Slideshow {
                             currentPicture = pictures.size() - 1;
                         }
                         picture = getPicInfo(currentPicture);
+                        if(picture == null) {
+                            return;
+                        }
                     }
                     synchronized (picture) {
                         if (picture.bitmap == null || picture.bitmap.isRecycled()) {
@@ -1016,6 +1025,9 @@ public class Slideshow {
                         return;
                     }
                     nextPic = getPicInfo(nextPicture);
+                    if(nextPic == null) {
+                        return;
+                    }
                 }
                 synchronized (nextPic) {
                     if (vertical ? nextLeftOrTop < sh : nextLeftOrTop < sw) {
@@ -1074,6 +1086,9 @@ public class Slideshow {
                         nextPicture = pictures.size() - 1;
                     }
                     nextPic = getPicInfo(nextPicture);
+                    if(nextPic == null) {
+                        return;
+                    }
                 }
                 synchronized (nextPic) {
                     if (nextRightOrBottom >= 0) {
