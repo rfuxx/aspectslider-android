@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ResultReceiver;
-import android.service.dreams.DreamService;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ public class PermissionUtils {
         void setPermissionResultReceiver(final int requestCode, final ResultReceiver resultReceiver);
     }
     public interface PermissionResultReceiver {
-        void onRequestPermissionsResult(final int requestCode, final String permissions[], final int[] grantResults);
+        void onRequestPermissionsResult(final int requestCode, final String[] permissions, final int[] grantResults);
     }
     public static class PermissionResultAdapter implements PermissionResultReceiver {
         public void onRequestPermissionsGranted(final int resultCode) {
@@ -38,7 +37,7 @@ public class PermissionUtils {
         public void onRequestPermissionsDenied(final int resultCode) {
         }
         @Override
-        public void onRequestPermissionsResult(final int requestCode, final String permissions[], final int[] grantResults) {
+        public void onRequestPermissionsResult(final int requestCode, final String[] permissions, final int[] grantResults) {
             final List<String> missingPermissions = getMissingPermissions(permissions, grantResults);
             if(missingPermissions.isEmpty()) {
                 onRequestPermissionsGranted(requestCode);
@@ -48,7 +47,7 @@ public class PermissionUtils {
         }
     }
 
-    public static List<String> getMissingPermissions(final String permissions[], final int[] grantResults) {
+    public static List<String> getMissingPermissions(final String[] permissions, final int[] grantResults) {
         final List<String> missingPermissions = new ArrayList<>();
         for(int i=0; i<grantResults.length; i++) {
             if(grantResults[i] != PackageManager.PERMISSION_GRANTED && i < permissions.length) {
@@ -59,7 +58,7 @@ public class PermissionUtils {
     }
 
     @TargetApi(23)
-    public static List<String> getMissingPermissions(final Context context, final String permissions[]) {
+    public static List<String> getMissingPermissions(final Context context, final String[] permissions) {
         final List<String> missingPermissions = new ArrayList<>();
         for (final String permission : permissions) {
             if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
@@ -107,12 +106,7 @@ public class PermissionUtils {
                     }
                 }
                 if(shouldShowRationale) {
-                    requestPermissions(activity, requestCode, missingPermissions.toArray(new String[0]), new PermissionResultReceiver() {
-                        @Override
-                        public void onRequestPermissionsResult(final int requestCode, final String permissions[], final int[] grantResults) {
-                            activity.onRequestPermissionsResult(requestCode, permissions, grantResults);
-                        }
-                    });
+                    requestPermissions(activity, requestCode, missingPermissions.toArray(new String[0]), activity::onRequestPermissionsResult);
                 } else {
                     activity.requestPermissions(permissions, requestCode);
                 }
@@ -157,7 +151,7 @@ public class PermissionUtils {
     }
 
 
-    public static void requestPermissionsResultToResultReceiver(final int requestCode, final String permissions[], final int[] grantResults, final ResultReceiver resultReceiver) {
+    public static void requestPermissionsResultToResultReceiver(final int requestCode, final String[] permissions, final int[] grantResults, final ResultReceiver resultReceiver) {
         final Bundle resultData = new Bundle();
         resultData.putStringArray(KEY_PERMISSIONS, permissions);
         resultData.putIntArray(KEY_GRANT_RESULTS, grantResults);
@@ -172,7 +166,7 @@ public class PermissionUtils {
         int requestCode;
 
         @Override
-        public void onRequestPermissionsResult(final int requestCode, final String permissions[], final int[] grantResults) {
+        public void onRequestPermissionsResult(final int requestCode, final String[] permissions, final int[] grantResults) {
             requestPermissionsResultToResultReceiver(requestCode, permissions, grantResults, resultReceiver);
             finish();
         }

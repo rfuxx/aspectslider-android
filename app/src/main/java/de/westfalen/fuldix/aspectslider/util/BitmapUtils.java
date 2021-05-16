@@ -82,8 +82,6 @@ public class BitmapUtils {
     public static Bitmap rotateBitmapExif(final Bitmap bitmap, final int orientation) {
         final Matrix matrix = new Matrix();
         switch (orientation) {
-            case ExifInterface.ORIENTATION_NORMAL:
-                return bitmap;
             case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
                 matrix.setScale(-1, 1);
                 break;
@@ -108,6 +106,7 @@ public class BitmapUtils {
             case ExifInterface.ORIENTATION_ROTATE_270:
                 matrix.setRotate(-90);
                 break;
+            case ExifInterface.ORIENTATION_NORMAL:
             default:
                 return bitmap;
         }

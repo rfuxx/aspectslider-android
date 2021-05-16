@@ -7,16 +7,12 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.SparseArray;
-import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import de.westfalen.fuldix.aspectslider.util.PermissionUtils;
 
@@ -117,7 +113,7 @@ public class SlideshowActivity extends Activity implements PermissionUtils.Permi
     }
 
     @Override
-    public void onRequestPermissionsResult(final int requestCode, final String permissions[], final int[] grantResults) {
+    public void onRequestPermissionsResult(final int requestCode, final String[] permissions, final int[] grantResults) {
         final ResultReceiver resultReceiver = permissionResultReceivers.get(requestCode);
         if(resultReceiver != null) {
             PermissionUtils.requestPermissionsResultToResultReceiver(requestCode, permissions, grantResults, resultReceiver);

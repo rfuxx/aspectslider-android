@@ -32,7 +32,7 @@ public class SettingsActivity extends PreferenceActivity {
     public static final String PREF_IGNORE_MEDIA_STORE = "ignore_media_store";
 
     public static final String PREF_MEDIA_URI = "media_uri";
-    public static final String PREF_DIRPATH = "dirpath";
+    public static final String PREF_DIR_PATH = "dirpath";
     public static final String PREF_MEDIA_SELECTION = "media_selection";
 
     private String rememberDirDescription;
@@ -56,7 +56,7 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     private void setupSimplePreferencesScreen() {
-        if (!isSimplePreferences(this)) {
+        if (isFragmentCapablePreferences(this)) {
             return;
         }
 
@@ -85,7 +85,7 @@ public class SettingsActivity extends PreferenceActivity {
 
     @Override
     public boolean onIsMultiPane() {
-        return isXLargeTablet(this) && !isSimplePreferences(this);
+        return isXLargeTablet(this) && isFragmentCapablePreferences(this);
     }
 
     /**
@@ -104,59 +104,56 @@ public class SettingsActivity extends PreferenceActivity {
      * doesn't have an extra-large screen. In these cases, a single-pane
      * "simplified" settings UI should be shown.
      */
-    private static boolean isSimplePreferences(final Context context) {
-        return ALWAYS_SIMPLE_PREFS
-                || Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
-                || !isXLargeTablet(context);
+    private static boolean isFragmentCapablePreferences(final Context context) {
+        return !ALWAYS_SIMPLE_PREFS
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+                && isXLargeTablet(context);
     }
 
     @Override
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void onBuildHeaders(final List<Header> target) {
-        if (!isSimplePreferences(this)) {
+        if (isFragmentCapablePreferences(this)) {
             loadHeadersFromResource(R.xml.pref_headers, target);
         }
     }
 
-    private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(final Preference preference, final Object value) {
-            final String stringValue = value.toString();
+    private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = (preference, value) -> {
+        final String stringValue = value.toString();
 
-            if (preference instanceof ListPreference) {
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
-                final ListPreference listPreference = (ListPreference) preference;
-                final int index = listPreference.findIndexOfValue(stringValue);
+        if (preference instanceof ListPreference) {
+            // For list preferences, look up the correct display value in
+            // the preference's 'entries' list.
+            final ListPreference listPreference = (ListPreference) preference;
+            final int index = listPreference.findIndexOfValue(stringValue);
 
-                CharSequence summary = index >= 0
-                        ? listPreference.getEntries()[index]
-                        : null;
-                if (summary != null) {
-                    switch (preference.getKey()) {
-                        case PREF_DELAY:
-                            summary = preference.getContext().getString(R.string.pref_description_delay, summary);
-                            break;
-                        case PREF_SPACE_BETWEEN_SLIDES:
-                            summary = preference.getContext().getString(R.string.pref_description_space_between_slides, summary);
-                            break;
-                        case PREF_SIZE_FILTER:
-                            if(index > 0) {
-                                summary = preference.getContext().getString(R.string.pref_description_size_filter, summary);
-                            }
-                            break;
-                    }
+            CharSequence summary = index >= 0
+                    ? listPreference.getEntries()[index]
+                    : null;
+            if (summary != null) {
+                switch (preference.getKey()) {
+                    case PREF_DELAY:
+                        summary = preference.getContext().getString(R.string.pref_description_delay, summary);
+                        break;
+                    case PREF_SPACE_BETWEEN_SLIDES:
+                        summary = preference.getContext().getString(R.string.pref_description_space_between_slides, summary);
+                        break;
+                    case PREF_SIZE_FILTER:
+                        if(index > 0) {
+                            summary = preference.getContext().getString(R.string.pref_description_size_filter, summary);
+                        }
+                        break;
                 }
-                // Set the summary to reflect the new value.
-                preference.setSummary(summary);
-
-            } else {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
-                preference.setSummary(stringValue);
             }
-            return true;
+            // Set the summary to reflect the new value.
+            preference.setSummary(summary);
+
+        } else {
+            // For all other preferences, set the summary to the value's
+            // simple string representation.
+            preference.setSummary(stringValue);
         }
+        return true;
     };
 
     private static void bindPreferenceSummaryToValue(final Preference preference) {

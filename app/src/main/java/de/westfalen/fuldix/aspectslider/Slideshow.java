@@ -58,13 +58,13 @@ import de.westfalen.fuldix.aspectslider.util.BitmapUtils;
 import de.westfalen.fuldix.aspectslider.util.PermissionUtils;
 
 public class Slideshow {
-    public static final String PREF_SIZEFILTER_NONE = "none";
-    public static final String PREF_SIZEFILTER_FITSCREEN = "fitscreen";
-    public static final String PREF_SIZEFILTER_ASLARGEASSCREEN = "aslargeasscreen";
-    public static final String PREF_SIZEFILTER_WRONGASPECT = "wrongaspect";
-    public static final String PREF_SIZEFILTER_HD720P = "hd720p";
-    public static final String PREF_SIZEFILTER_HD1080P = "hd1080p";
-    public static final String PREF_SIZEFILTER_VIDEO4K = "video4k";
+    public static final String PREF_SIZE_FILTER_NONE = "none";
+    public static final String PREF_SIZE_FILTER_FITSCREEN = "fitscreen";
+    public static final String PREF_SIZE_FILTER_ASLARGEASSCREEN = "aslargeasscreen";
+    public static final String PREF_SIZE_FILTER_WRONGASPECT = "wrongaspect";
+    public static final String PREF_SIZE_FILTER_HD720P = "hd720p";
+    public static final String PREF_SIZE_FILTER_HD1080P = "hd1080p";
+    public static final String PREF_SIZE_FILTER_VIDEO4K = "video4k";
 
     private static final int constAnimTimeToSlide = 400;
     private static final int constAnimFps = 30;
@@ -80,7 +80,7 @@ public class Slideshow {
     private final String PREF_IGNORE_MEDIA_STORE;
 
     private final String PREF_MEDIA_URI;
-    private final String PREF_DIRPATH;
+    private final String PREF_DIR_PATH;
     private final String PREF_MEDIA_SELECTION;
     private final String PREF_KEEP_BRIGHT;
 
@@ -91,7 +91,7 @@ public class Slideshow {
     private boolean settingRandom = false;
     private boolean settingRandomAgain = false;
     private boolean settingRecurse = true;
-    private String settingSizeFilter = Slideshow.PREF_SIZEFILTER_HD720P;
+    private String settingSizeFilter = Slideshow.PREF_SIZE_FILTER_HD720P;
     private boolean settingRememberCollection = false;
     private boolean settingIgnoreMediaStore = false;
     private boolean settingKeepBright = false;
@@ -99,8 +99,8 @@ public class Slideshow {
     private SwipeGestureFilter swipeDetector;
     private VisibilityRunnable scanningShow;
     private VisibilityRunnable scanningHide;
-    private VisibilityRunnable nopicsShow;
-    private VisibilityRunnable nopicsHide;
+    private VisibilityRunnable noPicsShow;
+    private VisibilityRunnable noPicsHide;
     private Handler slideshowHandler;
     private Handler preloadHandler;
     private Handler fileHandler;
@@ -127,14 +127,14 @@ public class Slideshow {
     private boolean slideshowRunning = false;
     private boolean paused = false;
     private boolean scanRunning = false;
-    private final Collection<Preloader> scheduledPreloaders = new LinkedList<>();
+    private final Collection<PreLoader> scheduledPreLoaders = new LinkedList<>();
     private final Random random = new Random();
     private final SettingsListener settingsListener = new SettingsListener();
     private final ClearScreenRunnable clearScreenRunnable = new ClearScreenRunnable();
     private HideSystemBarAndNavHoneycomb hideSystemBarAndNavHoneycomb;
     private InitialHideUIRunnable initialHideUIRunnable;
 
-    private class InitialHideUIRunnable implements Runnable {
+    private static class InitialHideUIRunnable implements Runnable {
         final private Runnable runnable;
 
         public InitialHideUIRunnable(Runnable runnable) {
@@ -202,7 +202,7 @@ public class Slideshow {
             final SurfaceHolder holder = canvasView.getHolder();
             final Canvas c = holder.lockCanvas();
             if (c == null) {
-                System.err.println("UpdateScreenRunnable's SurfaceHolder.lockCanvas() got null");
+                System.err.println("UpdateScreenRunnable SurfaceHolder.lockCanvas() got null");
                 return;
             }
             c.drawColor(context.getResources().getColor(R.color.solid_black));
@@ -360,7 +360,7 @@ public class Slideshow {
         }
 
         void applySizeFilter(final SharedPreferences sharedPref) {
-            settingSizeFilter = sharedPref.getString(PREF_SIZE_FILTER, Slideshow.PREF_SIZEFILTER_NONE);
+            settingSizeFilter = sharedPref.getString(PREF_SIZE_FILTER, Slideshow.PREF_SIZE_FILTER_NONE);
             fileHandler.post(slideshowEndRunnable);
             scanRunning = false;
             fileHandler.post(picFinderRunnable);
@@ -389,10 +389,10 @@ public class Slideshow {
         }
     }
 
-    private class Preloader implements Runnable {
+    private class PreLoader implements Runnable {
         private final PicInfo pic;
 
-        Preloader(final PicInfo pic) {
+        PreLoader(final PicInfo pic) {
             this.pic = pic;
         }
 
@@ -446,7 +446,7 @@ public class Slideshow {
     private class PicFinderRunnable extends PermissionUtils.PermissionResultAdapter implements Runnable {
         @Override
         public void onRequestPermissionsGranted(int resultCode) {
-            if(!isDaydream()) { // daydread had to be finish()ed in order for the permission popup to be displayable - hence when the user grants the permissions, it is not running anymore, until/unless it is restarted by the system
+            if(!isDaydream()) { // daydream had to be finish()ed in order for the permission popup to be displayable - hence when the user grants the permissions, it is not running anymore, until/unless it is restarted by the system
                 fileHandler.post(PicFinderRunnable.this);
             }
         }
@@ -466,7 +466,7 @@ public class Slideshow {
                 return;
             }
             uiHandler.post(scanningShow);
-            uiHandler.post(nopicsHide);
+            uiHandler.post(noPicsHide);
             pictures.clear();
             refusedPics = 0;
 
@@ -503,7 +503,7 @@ public class Slideshow {
             }
             scanRunning = false;
             if (pictures.isEmpty()) {
-                uiHandler.post(nopicsShow);
+                uiHandler.post(noPicsShow);
             }
             uiHandler.post(scanningHide);
         }
@@ -544,7 +544,7 @@ public class Slideshow {
                                 pictures.remove(picture);
                                 currentPicture--;
                                 if (pictures.isEmpty()) {
-                                    uiHandler.post(nopicsShow);
+                                    uiHandler.post(noPicsShow);
                                     break;
                                 }
                             }
@@ -644,7 +644,7 @@ public class Slideshow {
     private final Runnable slideshowJustRedrawRunnable = new Runnable() {
         @Override
         public void run() {
-            unschedulePreloaders(); // if the preloaders were too slow, cancel them and try "here" directly
+            unschedulePreLoaders(); // if the preLoaders were too slow, cancel them and try "here" directly
             if (pictures.isEmpty() || currentPicture == -1) {
                 return;
             }
@@ -677,9 +677,9 @@ public class Slideshow {
     private final Runnable slideshowRunnable = new Runnable() {
         @Override
         public void run() {
-            unschedulePreloaders(); // if the preloaders were too slow, cancel them and try "here" directly
+            unschedulePreLoaders(); // if the preLoaders were too slow, cancel them and try "here" directly
             if (pictures.isEmpty()) {
-                // May happen if over runtime, all images turned out as non decodeable or have disappeared
+                // May happen if over runtime, all images turned out as non-decode-able or have disappeared
                 fileHandler.post(slideshowEndRunnable);
                 return;
             }
@@ -711,7 +711,7 @@ public class Slideshow {
                                     pictures.remove(picture);
                                     currentPicture--;
                                     if (pictures.isEmpty()) {
-                                        uiHandler.post(nopicsShow);
+                                        uiHandler.post(noPicsShow);
                                         break;
                                     }
                                 }
@@ -747,7 +747,7 @@ public class Slideshow {
     private final Runnable slideshowBackRunnable = new Runnable() {
         @Override
         public void run() {
-            unschedulePreloaders(); // if the preloaders were too slow, cancel them and try "here" directly
+            unschedulePreLoaders(); // if the preLoaders were too slow, cancel them and try "here" directly
             if (pictures.isEmpty()) {
                 return;
             }
@@ -778,7 +778,7 @@ public class Slideshow {
                                 synchronized (pictures) {
                                     pictures.remove(picture);
                                     if(pictures.isEmpty()) {
-                                        uiHandler.post(nopicsShow);
+                                        uiHandler.post(noPicsShow);
                                     }
                                 }
                             }
@@ -823,7 +823,7 @@ public class Slideshow {
             PREF_REMEMBER_COLLECTION = DreamSettingsActivity.PREF_REMEMBER_COLLECTION;
             PREF_IGNORE_MEDIA_STORE = DreamSettingsActivity.PREF_IGNORE_MEDIA_STORE;
             PREF_MEDIA_URI = DreamSettingsActivity.PREF_MEDIA_URI;
-            PREF_DIRPATH = DreamSettingsActivity.PREF_DIRPATH;
+            PREF_DIR_PATH = DreamSettingsActivity.PREF_DIR_PATH;
             PREF_MEDIA_SELECTION = DreamSettingsActivity.PREF_MEDIA_SELECTION;
             PREF_KEEP_BRIGHT = DreamSettingsActivity.PREF_KEEP_BRIGHT;
         } else {
@@ -837,7 +837,7 @@ public class Slideshow {
             PREF_REMEMBER_COLLECTION = SettingsActivity.PREF_REMEMBER_COLLECTION;
             PREF_IGNORE_MEDIA_STORE = SettingsActivity.PREF_IGNORE_MEDIA_STORE;
             PREF_MEDIA_URI = SettingsActivity.PREF_MEDIA_URI;
-            PREF_DIRPATH = SettingsActivity.PREF_DIRPATH;
+            PREF_DIR_PATH = SettingsActivity.PREF_DIR_PATH;
             PREF_MEDIA_SELECTION = SettingsActivity.PREF_MEDIA_SELECTION;
             PREF_KEEP_BRIGHT = "";
         }
@@ -1135,7 +1135,7 @@ public class Slideshow {
             final int whichPos = pictures.indexOf(which);
             pictures.remove(which);
             if(pictures.isEmpty()) {
-                uiHandler.post(nopicsShow);
+                uiHandler.post(noPicsShow);
             }
             if (currentPicture > whichPos) {
                 currentPicture--;
@@ -1144,16 +1144,16 @@ public class Slideshow {
     }
 
     private void schedulePreload(final PicInfo pic) {
-        final Preloader preloader = new Preloader(pic);
-        scheduledPreloaders.add(preloader);
+        final PreLoader preloader = new PreLoader(pic);
+        scheduledPreLoaders.add(preloader);
         preloadHandler.post(preloader);
     }
 
-    private void unschedulePreloaders() {
-        for (final Preloader preloader : scheduledPreloaders) {
+    private void unschedulePreLoaders() {
+        for (final PreLoader preloader : scheduledPreLoaders) {
             preloadHandler.removeCallbacks(preloader);
         }
-        scheduledPreloaders.clear();
+        scheduledPreLoaders.clear();
     }
 
     void onCreate() {
@@ -1170,12 +1170,9 @@ public class Slideshow {
 
         final View contentView = findViewById(R.id.fullscreen_content);
         if (contentView != null) {
-            contentView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (Build.VERSION.SDK_INT >= 11) {
-                        toggleTouchInSystemBarHoneycomb();
-                    }
+            contentView.setOnClickListener(view -> {
+                if (Build.VERSION.SDK_INT >= 11) {
+                    toggleTouchInSystemBarHoneycomb();
                 }
             });
         }
@@ -1206,7 +1203,7 @@ public class Slideshow {
                     screenRatio = (float) sw / (float) sh;
                     final PicInfo currentPic = Slideshow.this.currentPic;
                     if (slideshowRunning && slideshowHandler != null && currentPic != null) {
-                        // update as immediate as possble
+                        // update as immediate as possible
                         final Rect imgRect = calcPicRectInDisplay(currentPic);
                         oldPicPos = imgRect;
                         currentPicPos = imgRect;
@@ -1228,9 +1225,9 @@ public class Slideshow {
         final View scanningView = findViewById(R.id.scanning);
         scanningShow = new VisibilityRunnable(scanningView, View.VISIBLE);
         scanningHide = new VisibilityRunnable(scanningView, View.GONE);
-        final View nopicsView = findViewById(R.id.no_pictures);
-        nopicsShow = new VisibilityRunnable(nopicsView, View.VISIBLE);
-        nopicsHide = new VisibilityRunnable(nopicsView, View.GONE);
+        final View noPicsView = findViewById(R.id.no_pictures);
+        noPicsShow = new VisibilityRunnable(noPicsView, View.VISIBLE);
+        noPicsHide = new VisibilityRunnable(noPicsView, View.GONE);
 
         final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         sharedPref.registerOnSharedPreferenceChangeListener(settingsListener);
@@ -1240,10 +1237,10 @@ public class Slideshow {
         settingRandom = sharedPref.getBoolean(PREF_RANDOM, false);
         settingRandomAgain = sharedPref.getBoolean(PREF_RANDOM_AGAIN, false);
         settingRecurse = sharedPref.getBoolean(PREF_RECURSE, true);
-        settingSizeFilter = sharedPref.getString(PREF_SIZE_FILTER, Slideshow.PREF_SIZEFILTER_NONE);
+        settingSizeFilter = sharedPref.getString(PREF_SIZE_FILTER, Slideshow.PREF_SIZE_FILTER_NONE);
         settingRememberCollection = isDaydream() || sharedPref.getBoolean(PREF_REMEMBER_COLLECTION, false);
         if (settingRememberCollection) {
-            path = new File(sharedPref.getString(PREF_DIRPATH, ""));
+            path = new File(sharedPref.getString(PREF_DIR_PATH, ""));
             mediaUri = Uri.parse(sharedPref.getString(PREF_MEDIA_URI, MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString()));
             mediaSelection = sharedPref.getString(PREF_MEDIA_SELECTION, null);
         }
@@ -1268,7 +1265,7 @@ public class Slideshow {
         HandlerThread bgThread = new HandlerThread("Slideshow Mover");
         bgThread.start();
         slideshowHandler = new Handler(bgThread.getLooper());
-        bgThread = new HandlerThread("Preloader");
+        bgThread = new HandlerThread("PreLoader");
         bgThread.start();
         preloadHandler = new Handler(bgThread.getLooper());
         bgThread = new HandlerThread("File Finder");
@@ -1309,43 +1306,43 @@ public class Slideshow {
 
     private boolean acceptFileSizeInternalChecking(final PicInfo pic) {
         if(pic.isChecked()) {
-            final int longerside, shorterside;
+            final int longerSide, shorterSide;
             final int picWidth = pic.getWidth();
             final int picHeight = pic.getHeight();
             if (picWidth > picHeight) {
-                longerside = picWidth;
-                shorterside = picHeight;
+                longerSide = picWidth;
+                shorterSide = picHeight;
             } else {
-                longerside = picHeight;
-                shorterside = picWidth;
+                longerSide = picHeight;
+                shorterSide = picWidth;
             }
             switch (settingSizeFilter) {
-                case Slideshow.PREF_SIZEFILTER_VIDEO4K:
-                    return longerside >= 3840 && shorterside >= 2160;
-                case Slideshow.PREF_SIZEFILTER_HD1080P:
-                    return longerside >= 1920 && shorterside >= 1080;
-                case Slideshow.PREF_SIZEFILTER_HD720P:
-                    return longerside >= 1280 && shorterside >= 720;
-                case Slideshow.PREF_SIZEFILTER_NONE:
-                    return longerside >= 0 && shorterside >= 0;
+                case Slideshow.PREF_SIZE_FILTER_VIDEO4K:
+                    return longerSide >= 3840 && shorterSide >= 2160;
+                case Slideshow.PREF_SIZE_FILTER_HD1080P:
+                    return longerSide >= 1920 && shorterSide >= 1080;
+                case Slideshow.PREF_SIZE_FILTER_HD720P:
+                    return longerSide >= 1280 && shorterSide >= 720;
+                case Slideshow.PREF_SIZE_FILTER_NONE:
+                    return longerSide >= 0 && shorterSide >= 0;
             }
-            final int longerScreenside, shorterScreenside;
+            final int longerScreenSide, shorterScreenSide;
             if (sw > sh) {
-                longerScreenside = sw;
-                shorterScreenside = sh;
+                longerScreenSide = sw;
+                shorterScreenSide = sh;
             } else {
-                longerScreenside = sh;
-                shorterScreenside = sw;
+                longerScreenSide = sh;
+                shorterScreenSide = sw;
             }
             switch (settingSizeFilter) {
-                case Slideshow.PREF_SIZEFILTER_FITSCREEN:
-                    return longerside >= longerScreenside || shorterside >= shorterScreenside;
-                case Slideshow.PREF_SIZEFILTER_ASLARGEASSCREEN:
-                    return longerside >= longerScreenside && shorterside >= shorterScreenside;
-                case Slideshow.PREF_SIZEFILTER_WRONGASPECT:
-                    return longerside >= shorterScreenside;
+                case Slideshow.PREF_SIZE_FILTER_FITSCREEN:
+                    return longerSide >= longerScreenSide || shorterSide >= shorterScreenSide;
+                case Slideshow.PREF_SIZE_FILTER_ASLARGEASSCREEN:
+                    return longerSide >= longerScreenSide && shorterSide >= shorterScreenSide;
+                case Slideshow.PREF_SIZE_FILTER_WRONGASPECT:
+                    return longerSide >= shorterScreenSide;
                 default:
-                    return longerside > 0 && shorterside > 0;
+                    return longerSide > 0 && shorterSide > 0;
             }
         } else {
             return true; // accept and check later
@@ -1558,16 +1555,20 @@ public class Slideshow {
             switch (requestCode) {
                 case DirectorySelector.SELECT_DIRECTORY: {
                     final Bundle extras = data.getExtras();
-                    final String fileName = extras.getString(DirectorySelector.RETURN_DIRECTORY);
-                    if (fileName != null) {
-                        path = new File(fileName);
+                    if(extras != null) {
+                        final String fileName = extras.getString(DirectorySelector.RETURN_DIRECTORY);
+                        if (fileName != null) {
+                            path = new File(fileName);
+                        }
                     }
                     break;
                 }
                 case MediaStoreSelector.SELECT_MEDIA: {
                     final Bundle extras = data.getExtras();
-                    mediaUri = (Uri) extras.get(MediaStoreSelector.RETURN_URI);
-                    mediaSelection = extras.getString(MediaStoreSelector.RETURN_SELECTION);
+                    if(extras != null) {
+                        mediaUri = (Uri) extras.get(MediaStoreSelector.RETURN_URI);
+                        mediaSelection = extras.getString(MediaStoreSelector.RETURN_SELECTION);
+                    }
                     break;
                 }
                 default:
@@ -1609,35 +1610,35 @@ public class Slideshow {
             showTouchInSystemBarHoneycomb();
         }
         if (settingIgnoreMediaStore) {
-            final MenuItem usepicturesdir = menu.findItem(R.id.usepicturesdir);
-            final MenuItem useextstoragedir = menu.findItem(R.id.useextstoragedir);
-            final MenuItem userootdir = menu.findItem(R.id.userootdir);
+            final MenuItem usePicturesDir = menu.findItem(R.id.usepicturesdir);
+            final MenuItem useExtStorageDir = menu.findItem(R.id.useextstoragedir);
+            final MenuItem useRootDir = menu.findItem(R.id.userootdir);
             if (path == null) {
-                usepicturesdir.setChecked(false);
-                useextstoragedir.setChecked(false);
-                userootdir.setChecked(false);
+                usePicturesDir.setChecked(false);
+                useExtStorageDir.setChecked(false);
+                useRootDir.setChecked(false);
             } else {
-                usepicturesdir.setChecked(Build.VERSION.SDK_INT >= 8 && path.equals(getExternalPicturesDir()));
-                useextstoragedir.setChecked(path.equals(Environment.getExternalStorageDirectory()));
-                userootdir.setChecked(path.equals(Environment.getRootDirectory()));
+                usePicturesDir.setChecked(Build.VERSION.SDK_INT >= 8 && path.equals(getExternalPicturesDir()));
+                useExtStorageDir.setChecked(path.equals(Environment.getExternalStorageDirectory()));
+                useRootDir.setChecked(path.equals(Environment.getRootDirectory()));
             }
             if (!(Build.VERSION.SDK_INT >= 8)) {
-                usepicturesdir.setEnabled(false);
+                usePicturesDir.setEnabled(false);
             }
         } else {
-            final MenuItem allpictures = menu.findItem(R.id.allpictures);
-            allpictures.setChecked(mediaSelection == null);
+            final MenuItem allPictures = menu.findItem(R.id.allpictures);
+            allPictures.setChecked(mediaSelection == null);
         }
     }
 
     private void saveRememberCollection() {
         final SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
         if (settingRememberCollection) {
-            editor.putString(PREF_DIRPATH, path.getAbsolutePath());
+            editor.putString(PREF_DIR_PATH, path.getAbsolutePath());
             editor.putString(PREF_MEDIA_URI, mediaUri.toString());
             editor.putString(PREF_MEDIA_SELECTION, mediaSelection);
         } else {
-            editor.remove(PREF_DIRPATH);
+            editor.remove(PREF_DIR_PATH);
             editor.remove(PREF_MEDIA_URI);
             editor.remove(PREF_MEDIA_SELECTION);
         }
@@ -1689,14 +1690,11 @@ public class Slideshow {
         if (context instanceof Activity) {
             final ActionBar ab = ((Activity) context).getActionBar();
             if (ab != null) {
-                ab.addOnMenuVisibilityListener(new ActionBar.OnMenuVisibilityListener() {
-                    @Override
-                    public void onMenuVisibilityChanged(boolean isVisible) {
-                        if (isVisible) {
-                            showTouchInSystemBarHoneycomb();
-                        } else {
-                            uiHandler.postDelayed(hideSystemBarAndNavHoneycomb, 500);
-                        }
+                ab.addOnMenuVisibilityListener(isVisible -> {
+                    if (isVisible) {
+                        showTouchInSystemBarHoneycomb();
+                    } else {
+                        uiHandler.postDelayed(hideSystemBarAndNavHoneycomb, 500);
                     }
                 });
             }

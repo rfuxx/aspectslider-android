@@ -20,7 +20,6 @@ import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -53,7 +52,7 @@ public class MediaStoreSelector extends Activity {
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        executor = new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors(), 1, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+        executor = new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors(), 1, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
         uiHandler = new Handler();
         final String[] requiredPermissions = new String[] { Manifest.permission.READ_EXTERNAL_STORAGE };
         if(PermissionUtils.checkOrRequestPermissions(this, requiredPermissions)) {
@@ -62,7 +61,7 @@ public class MediaStoreSelector extends Activity {
     }
 
     @Override
-    public void onRequestPermissionsResult(final int requestCode, final String permissions[], final int[] grantResults) {
+    public void onRequestPermissionsResult(final int requestCode, final String[] permissions, final int[] grantResults) {
         if(PermissionUtils.getMissingPermissions(permissions, grantResults).isEmpty()) {
             setupUI();
         } else {
@@ -92,18 +91,13 @@ public class MediaStoreSelector extends Activity {
 
 
         setContentView(R.layout.activity_mediaselect);
-        final GridView av = (GridView) findViewById(R.id.grid);
+        final GridView av = findViewById(R.id.grid);
         galleryAdapter = new GalleryAdapter(this, mediaUri, executor);
         av.setAdapter(galleryAdapter);
         final Resources res = getResources();
         final int cellWidth = res.getDimensionPixelSize(R.dimen.gallery_column_width_intended);
         av.setNumColumns(realSize.x/cellWidth);
-        av.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                returnSelection(id);
-            }
-        });
+        av.setOnItemClickListener((parent, view, position, id) -> returnSelection(id));
 
         executor.execute(new MediaStoreGalleryQueryRunnable(this, mediaUri, galleryAdapter, uiHandler));
     }
@@ -147,26 +141,26 @@ public class MediaStoreSelector extends Activity {
                             }
                             if (currentBucketId != bucketId || cursor.isLast()) {
                                 final int numPics = ids.size();
-                                final long[] thmbs;
-                                final int[] thmbOrientations;
+                                final long[] thumbs;
+                                final int[] thumbOrientations;
                                 switch (numPics) {
                                     case 1:
-                                        thmbs = new long[]{ids.get(0)};
-                                        thmbOrientations = new int[]{orientations.get(0)};
+                                        thumbs = new long[]{ids.get(0)};
+                                        thumbOrientations = new int[]{orientations.get(0)};
                                         break;
                                     case 2:
-                                        thmbs = new long[]{ids.get(0), ids.get(1)};
-                                        thmbOrientations = new int[]{orientations.get(0), orientations.get(1)};
+                                        thumbs = new long[]{ids.get(0), ids.get(1)};
+                                        thumbOrientations = new int[]{orientations.get(0), orientations.get(1)};
                                         break;
                                     default:
-                                        thmbs = new long[]{ids.get(0), ids.get(numPics / 2), ids.get(numPics - 1)};
-                                        thmbOrientations = new int[]{orientations.get(0), orientations.get(numPics / 2), orientations.get(numPics - 1)};
+                                        thumbs = new long[]{ids.get(0), ids.get(numPics / 2), ids.get(numPics - 1)};
+                                        thumbOrientations = new int[]{orientations.get(0), orientations.get(numPics / 2), orientations.get(numPics - 1)};
                                         break;
                                 }
                                 if(Thread.interrupted()) {
                                     return;
                                 }
-                                final Gallery gallery = new Gallery(bucketId, bucketName, numPics, thmbs, thmbOrientations);
+                                final Gallery gallery = new Gallery(bucketId, bucketName, numPics, thumbs, thumbOrientations);
                                 uiHandler.post(galleryAdapter.new AddGalleryRunnable(gallery));
 
                                 if (!cursor.isLast()) {
@@ -268,13 +262,13 @@ public class MediaStoreSelector extends Activity {
         @Override
         public View getView(final int position, View convertView, final ViewGroup parent) {
             if(convertView == null) {
-                convertView = inflater.inflate(R.layout.medialist_item, null);
+                convertView = inflater.inflate(R.layout.medialist_item, parent, false);
             }
             final TextView nameView = convertView.findViewById(R.id.galleryname);
             final TextView infoView = convertView.findViewById(R.id.galleryinfo);
             final ImageView[] imageViews = new ImageView[iconItems.length];
             for(int i=0; i<iconItems.length; i++) {
-                imageViews[i] = (ImageView) convertView.findViewById(iconItems[i]);
+                imageViews[i] = convertView.findViewById(iconItems[i]);
             }
             final Gallery gallery = galleries.get(position);
             nameView.setText(gallery.name);

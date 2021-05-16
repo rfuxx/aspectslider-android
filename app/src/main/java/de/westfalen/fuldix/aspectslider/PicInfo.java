@@ -15,7 +15,7 @@ import java.io.InputStream;
 
 import de.westfalen.fuldix.aspectslider.util.BitmapUtils;
 
-class PicInfo implements Comparable {
+class PicInfo implements Comparable<PicInfo> {
     final Object picSource;
     private int fileWidth;
     private int fileHeight;
@@ -45,12 +45,8 @@ class PicInfo implements Comparable {
     }
 
     @Override
-    public int compareTo(final Object another) {
-        if(another instanceof PicInfo) {
-            return getComparableString().compareTo(((PicInfo) another).getComparableString());
-        } else {
-            return 1;
-        }
+    public int compareTo(final PicInfo another) {
+        return getComparableString().compareTo(another.getComparableString());
     }
 
     private String getComparableString() {
@@ -145,12 +141,9 @@ class PicInfo implements Comparable {
             return null;
         }
         try {
-            return ImageDecoder.decodeBitmap(source, new ImageDecoder.OnHeaderDecodedListener() {
-                @Override
-                public void onHeaderDecoded(final ImageDecoder decoder, final ImageDecoder.ImageInfo info, final ImageDecoder.Source source) {
-                    decoder.setAllocator(ImageDecoder.ALLOCATOR_SOFTWARE);
-                    decoder.setTargetSampleSize(getTargetSampleSize(sw, sh));
-                }
+            return ImageDecoder.decodeBitmap(source, (decoder, info, source1) -> {
+                decoder.setAllocator(ImageDecoder.ALLOCATOR_SOFTWARE);
+                decoder.setTargetSampleSize(getTargetSampleSize(sw, sh));
             });
         } catch (final IOException e) {
             e.printStackTrace();
@@ -179,7 +172,7 @@ class PicInfo implements Comparable {
 
     private int getTargetSampleSize(int sw, int sh) {
         // we have to use the file measures because others may have been rotated for layout
-        final int size = (sw > sh) ? sw : sh;
+        final int size = Math.max(sw, sh);
         if (fileWidth < size && fileHeight < size) {
             return 1;
         } else if (fileWidth < fileHeight) {

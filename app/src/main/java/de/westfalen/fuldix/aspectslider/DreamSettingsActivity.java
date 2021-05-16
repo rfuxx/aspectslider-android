@@ -45,7 +45,7 @@ public class DreamSettingsActivity extends PreferenceActivity {
     public static final String PREF_IGNORE_MEDIA_STORE = DREAM_PREFIX + SettingsActivity.PREF_IGNORE_MEDIA_STORE;
 
     public static final String PREF_MEDIA_URI = DREAM_PREFIX + SettingsActivity.PREF_MEDIA_URI;
-    public static final String PREF_DIRPATH = DREAM_PREFIX + SettingsActivity.PREF_DIRPATH;
+    public static final String PREF_DIR_PATH = DREAM_PREFIX + SettingsActivity.PREF_DIR_PATH;
     public static final String PREF_MEDIA_SELECTION = DREAM_PREFIX + SettingsActivity.PREF_MEDIA_SELECTION;
 
     private static final String PREF_ALL_GALLERY_PICTURES = "dream_all_gallery_pictures";
@@ -54,12 +54,7 @@ public class DreamSettingsActivity extends PreferenceActivity {
     private static final String PREF_DIR_ROOT = "dream_dir_root";
 
     private final Handler uiHandler = new Handler();
-    private final Runnable setupSimplePreferencesScreenRunnable = new Runnable() {
-        @Override
-        public void run() {
-            setupSimplePreferencesScreen();
-        }
-    };
+    private final Runnable setupSimplePreferencesScreenRunnable = this::setupSimplePreferencesScreen;
 
     private CheckBoxPreference prefDirPictures;
     private CheckBoxPreference prefDirExternal;
@@ -75,7 +70,7 @@ public class DreamSettingsActivity extends PreferenceActivity {
     }
 
     private void setupSimplePreferencesScreen() {
-        if (!isSimplePreferences(this)) {
+        if (isFragmentCapablePreferences(this)) {
             return;
         }
 
@@ -90,18 +85,18 @@ public class DreamSettingsActivity extends PreferenceActivity {
         addPreferencesFromResource(R.xml.pref_fakeroot);
         if((PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PREF_IGNORE_MEDIA_STORE, false))) {
             addPreferencesFromResource(R.xml.pref_dream_fileselect);
-            prefDirPath = findPreference(PREF_DIRPATH);
+            prefDirPath = findPreference(PREF_DIR_PATH);
             prefDirPictures = (CheckBoxPreference) findPreference(PREF_DIR_PICTURES);
             prefDirExternal = (CheckBoxPreference) findPreference(PREF_DIR_EXTERNAL);
             prefDirRoot = (CheckBoxPreference) findPreference(PREF_DIR_ROOT);
-            setFileselectSummary();
+            setFileSelectSummary();
             if (Build.VERSION.SDK_INT >= 8) {
-                prefDirPictures.setOnPreferenceChangeListener(sBindDirpath);
+                prefDirPictures.setOnPreferenceChangeListener(sBindDirPath);
             } else {
                 prefDirPictures.setEnabled(false);
             }
-            prefDirExternal.setOnPreferenceChangeListener(sBindDirpath);
-            prefDirRoot.setOnPreferenceChangeListener(sBindDirpath);
+            prefDirExternal.setOnPreferenceChangeListener(sBindDirPath);
+            prefDirRoot.setOnPreferenceChangeListener(sBindDirPath);
             prefDirPath.setOnPreferenceClickListener(sBindDirSelect);
         } else {
             addPreferencesFromResource(R.xml.pref_dream_galleryselect);
@@ -128,7 +123,7 @@ public class DreamSettingsActivity extends PreferenceActivity {
 
     @Override
     public boolean onIsMultiPane() {
-        return isXLargeTablet(this) && !isSimplePreferences(this);
+        return isXLargeTablet(this) && isFragmentCapablePreferences(this);
     }
 
     private static boolean isXLargeTablet(final Context context) {
@@ -136,59 +131,56 @@ public class DreamSettingsActivity extends PreferenceActivity {
                 & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
 
-    private static boolean isSimplePreferences(final Context context) {
-        return ALWAYS_SIMPLE_PREFS
-                || Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB
-                || !isXLargeTablet(context);
+    private static boolean isFragmentCapablePreferences(final Context context) {
+        return !ALWAYS_SIMPLE_PREFS
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
+                && isXLargeTablet(context);
     }
 
     @Override
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void onBuildHeaders(final List<Header> target) {
-        if (!isSimplePreferences(this)) {
+        if (isFragmentCapablePreferences(this)) {
             loadHeadersFromResource(R.xml.pref_dream_headers, target);
         }
     }
 
-    private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(final Preference preference, final Object value) {
-            final String stringValue = value.toString();
+    private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = (preference, value) -> {
+        final String stringValue = value.toString();
 
-            if (preference instanceof ListPreference) {
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
-                final ListPreference listPreference = (ListPreference) preference;
-                int index = listPreference.findIndexOfValue(stringValue);
+        if (preference instanceof ListPreference) {
+            // For list preferences, look up the correct display value in
+            // the preference's 'entries' list.
+            final ListPreference listPreference = (ListPreference) preference;
+            int index = listPreference.findIndexOfValue(stringValue);
 
-                CharSequence summary = index >= 0
-                        ? listPreference.getEntries()[index]
-                        : null;
-                if (summary != null) {
-                    switch (preference.getKey()) {
-                        case PREF_DELAY:
-                            summary = preference.getContext().getString(R.string.pref_description_delay, summary);
-                            break;
-                        case PREF_SPACE_BETWEEN_SLIDES:
-                            summary = preference.getContext().getString(R.string.pref_description_space_between_slides, summary);
-                            break;
-                        case PREF_SIZE_FILTER:
-                            if(index > 0) {
-                                summary = preference.getContext().getString(R.string.pref_description_size_filter, summary);
-                            }
-                            break;
-                    }
+            CharSequence summary = index >= 0
+                    ? listPreference.getEntries()[index]
+                    : null;
+            if (summary != null) {
+                switch (preference.getKey()) {
+                    case PREF_DELAY:
+                        summary = preference.getContext().getString(R.string.pref_description_delay, summary);
+                        break;
+                    case PREF_SPACE_BETWEEN_SLIDES:
+                        summary = preference.getContext().getString(R.string.pref_description_space_between_slides, summary);
+                        break;
+                    case PREF_SIZE_FILTER:
+                        if(index > 0) {
+                            summary = preference.getContext().getString(R.string.pref_description_size_filter, summary);
+                        }
+                        break;
                 }
-                // Set the summary to reflect the new value.
-                preference.setSummary(summary);
-
-            } else {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
-                preference.setSummary(stringValue);
             }
-            return true;
+            // Set the summary to reflect the new value.
+            preference.setSummary(summary);
+
+        } else {
+            // For all other preferences, set the summary to the value's
+            // simple string representation.
+            preference.setSummary(stringValue);
         }
+        return true;
     };
 
     private static void bindPreferenceSummaryToValue(final Preference preference) {
@@ -204,14 +196,11 @@ public class DreamSettingsActivity extends PreferenceActivity {
     }
 
 
-    private final Preference.OnPreferenceChangeListener sBindIgnoreMediaStore = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(final Preference preference, final Object value) {
-            if(PREF_IGNORE_MEDIA_STORE.equals(preference.getKey())) {
-                uiHandler.postAtFrontOfQueue(setupSimplePreferencesScreenRunnable);
-            }
-            return true;
+    private final Preference.OnPreferenceChangeListener sBindIgnoreMediaStore = (preference, value) -> {
+        if(PREF_IGNORE_MEDIA_STORE.equals(preference.getKey())) {
+            uiHandler.postAtFrontOfQueue(setupSimplePreferencesScreenRunnable);
         }
+        return true;
     };
 
     private Uri getMediaUri() {
@@ -243,77 +232,68 @@ public class DreamSettingsActivity extends PreferenceActivity {
         }
     }
 
-    private final Preference.OnPreferenceClickListener sBindGalleryName = new Preference.OnPreferenceClickListener() {
-        @Override
-        public boolean onPreferenceClick(final Preference preference) {
-            if(PREF_MEDIA_SELECTION.equals(preference.getKey())) {
-                final Intent intent = new Intent(DreamSettingsActivity.this, MediaStoreSelector.class);
-                intent.putExtra(MediaStoreSelector.START_URI, getMediaUri());
-                startActivityForResult(intent, MediaStoreSelector.SELECT_MEDIA);
-                return true;
-            }
-            return false;
+    private final Preference.OnPreferenceClickListener sBindGalleryName = preference -> {
+        if(PREF_MEDIA_SELECTION.equals(preference.getKey())) {
+            final Intent intent = new Intent(DreamSettingsActivity.this, MediaStoreSelector.class);
+            intent.putExtra(MediaStoreSelector.START_URI, getMediaUri());
+            startActivityForResult(intent, MediaStoreSelector.SELECT_MEDIA);
+            return true;
         }
+        return false;
     };
 
-    private final Preference.OnPreferenceChangeListener sBindAllGalleries = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(final Preference preference, final Object value) {
-            if(PREF_ALL_GALLERY_PICTURES.equals(preference.getKey())) {
-                final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(DreamSettingsActivity.this);
-                sharedPreferences.edit()
-                        .putString(PREF_MEDIA_SELECTION, null)
-                        .commit();
-                setGallerySummary();
-            }
-            return value.equals(true); // not reall de-selectable, this checkmark :-)
+    private final Preference.OnPreferenceChangeListener sBindAllGalleries = (preference, value) -> {
+        if(PREF_ALL_GALLERY_PICTURES.equals(preference.getKey())) {
+            final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(DreamSettingsActivity.this);
+            sharedPreferences.edit()
+                    .putString(PREF_MEDIA_SELECTION, null)
+                    .commit();
+            setGallerySummary();
         }
+        return value.equals(true); // not really de-selectable, this checkmark :-)
     };
 
-    private final Preference.OnPreferenceChangeListener sBindDirpath = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(final Preference preference, final Object value) {
-            final File dirpath;
-            switch(preference.getKey()) {
-                case PREF_DIR_PICTURES:
-                    if(Build.VERSION.SDK_INT >= 8) {
-                        dirpath = getExternalPicturesDir();
-                    } else {
-                        dirpath = null;
-                    }
-                    break;
-                case PREF_DIR_EXTERNAL:
-                    dirpath = Environment.getExternalStorageDirectory();
-                    break;
-                case PREF_DIR_ROOT:
-                    dirpath = Environment.getRootDirectory();
-                    break;
-                default:
-                    dirpath = null;
-                    break;
-            }
-            if(dirpath != null) {
-                final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(DreamSettingsActivity.this);
-                sharedPreferences.edit()
-                        .putString(PREF_DIRPATH, dirpath.getAbsolutePath())
-                        .commit();
-                setFileselectSummary();
-            }
-            return value.equals(true); // not reall de-selectable, this checkmark :-)
+    private final Preference.OnPreferenceChangeListener sBindDirPath = (preference, value) -> {
+        final File dirPath;
+        switch(preference.getKey()) {
+            case PREF_DIR_PICTURES:
+                if(Build.VERSION.SDK_INT >= 8) {
+                    dirPath = getExternalPicturesDir();
+                } else {
+                    dirPath = null;
+                }
+                break;
+            case PREF_DIR_EXTERNAL:
+                dirPath = Environment.getExternalStorageDirectory();
+                break;
+            case PREF_DIR_ROOT:
+                dirPath = Environment.getRootDirectory();
+                break;
+            default:
+                dirPath = null;
+                break;
         }
+        if(dirPath != null) {
+            final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(DreamSettingsActivity.this);
+            sharedPreferences.edit()
+                    .putString(PREF_DIR_PATH, dirPath.getAbsolutePath())
+                    .commit();
+            setFileSelectSummary();
+        }
+        return value.equals(true); // not really de-selectable, this checkmark :-)
     };
 
-    private void setFileselectSummary() {
+    private void setFileSelectSummary() {
         if(prefDirPath != null) {
             final SharedPreferences sharedPrefs = (PreferenceManager.getDefaultSharedPreferences(this));
-            final String dirpath = sharedPrefs.getString(PREF_DIRPATH, "");
-            final boolean isPicturesDir = Build.VERSION.SDK_INT >= 8 && dirpath.equals(getExternalPicturesDir().getAbsolutePath());
+            final String dirPath = sharedPrefs.getString(PREF_DIR_PATH, "");
+            final boolean isPicturesDir = Build.VERSION.SDK_INT >= 8 && dirPath.equals(getExternalPicturesDir().getAbsolutePath());
             prefDirPictures.setChecked(isPicturesDir);
-            final boolean isExternalDir = dirpath.equals(Environment.getExternalStorageDirectory().getAbsolutePath());
+            final boolean isExternalDir = dirPath.equals(Environment.getExternalStorageDirectory().getAbsolutePath());
             prefDirExternal.setChecked(isExternalDir);
-            final boolean isRootDir = dirpath.equals(Environment.getRootDirectory().getAbsolutePath());
+            final boolean isRootDir = dirPath.equals(Environment.getRootDirectory().getAbsolutePath());
             prefDirRoot.setChecked(isRootDir);
-            prefDirPath.setSummary(dirpath);
+            prefDirPath.setSummary(dirPath);
         }
     }
 
@@ -322,22 +302,19 @@ public class DreamSettingsActivity extends PreferenceActivity {
         return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
     }
 
-    private final Preference.OnPreferenceClickListener sBindDirSelect = new Preference.OnPreferenceClickListener() {
-        @Override
-        public boolean onPreferenceClick(final Preference preference) {
-            if(PREF_DIRPATH.equals(preference.getKey())) {
-                final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(DreamSettingsActivity.this);
-                final String dirpath = sharedPreferences.getString(PREF_DIRPATH, Environment.getExternalStorageDirectory().getAbsolutePath());
-                final Intent intent = new Intent(DreamSettingsActivity.this, DirectorySelector.class);
-                intent.putExtra(DirectorySelector.START_DIR, dirpath);
-                intent.putExtra(DirectorySelector.SHOW_HIDDEN, false);
-                intent.putExtra(DirectorySelector.ONLY_DIRS, true);
-                intent.putExtra(DirectorySelector.ALLOW_UP, true);
-                startActivityForResult(intent, DirectorySelector.SELECT_DIRECTORY);
-                return true;
-            }
-            return false;
+    private final Preference.OnPreferenceClickListener sBindDirSelect = preference -> {
+        if(PREF_DIR_PATH.equals(preference.getKey())) {
+            final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(DreamSettingsActivity.this);
+            final String dirPath = sharedPreferences.getString(PREF_DIR_PATH, Environment.getExternalStorageDirectory().getAbsolutePath());
+            final Intent intent = new Intent(DreamSettingsActivity.this, DirectorySelector.class);
+            intent.putExtra(DirectorySelector.START_DIR, dirPath);
+            intent.putExtra(DirectorySelector.SHOW_HIDDEN, false);
+            intent.putExtra(DirectorySelector.ONLY_DIRS, true);
+            intent.putExtra(DirectorySelector.ALLOW_UP, true);
+            startActivityForResult(intent, DirectorySelector.SELECT_DIRECTORY);
+            return true;
         }
+        return false;
     };
 
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
@@ -345,29 +322,35 @@ public class DreamSettingsActivity extends PreferenceActivity {
             switch (requestCode) {
                 case DirectorySelector.SELECT_DIRECTORY: {
                     final Bundle extras = data.getExtras();
-                    final String fileName = extras.getString(DirectorySelector.RETURN_DIRECTORY);
-                    if (fileName != null) {
-                        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-                        sharedPreferences.edit()
-                                .putString(PREF_DIRPATH, fileName)
-                                .commit();
-                        setFileselectSummary();
+                    if(extras != null) {
+                        final String fileName = extras.getString(DirectorySelector.RETURN_DIRECTORY);
+                        if (fileName != null) {
+                            final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+                            sharedPreferences.edit()
+                                    .putString(PREF_DIR_PATH, fileName)
+                                    .commit();
+                            setFileSelectSummary();
+                        }
                     }
                     break;
                 }
                 case MediaStoreSelector.SELECT_MEDIA: {
                     final Bundle extras = data.getExtras();
-                    final Uri mediaUri = (Uri) extras.get(MediaStoreSelector.RETURN_URI);
-                    String mediaSelection = extras.getString(MediaStoreSelector.RETURN_SELECTION);
-                    if(mediaSelection == null) {
-                        mediaSelection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString();
+                    if(extras != null) {
+                        final Uri mediaUri = (Uri) extras.get(MediaStoreSelector.RETURN_URI);
+                        if(mediaUri != null) {
+                            String mediaSelection = extras.getString(MediaStoreSelector.RETURN_SELECTION);
+                            if (mediaSelection == null) {
+                                mediaSelection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString();
+                            }
+                            final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+                            sharedPreferences.edit()
+                                    .putString(PREF_MEDIA_URI, mediaUri.toString())
+                                    .putString(PREF_MEDIA_SELECTION, mediaSelection)
+                                    .commit();
+                            setGallerySummary();
+                        }
                     }
-                    final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-                    sharedPreferences.edit()
-                            .putString(PREF_MEDIA_URI, mediaUri.toString())
-                            .putString(PREF_MEDIA_SELECTION, mediaSelection)
-                            .commit();
-                    setGallerySummary();
                     break;
                 }
             }
@@ -392,18 +375,18 @@ public class DreamSettingsActivity extends PreferenceActivity {
             }
             if((PreferenceManager.getDefaultSharedPreferences(dreamSettingsActivity).getBoolean(PREF_IGNORE_MEDIA_STORE, false))) {
                 addPreferencesFromResource(R.xml.pref_dream_fileselect);
-                dreamSettingsActivity.prefDirPath = findPreference(PREF_DIRPATH);
+                dreamSettingsActivity.prefDirPath = findPreference(PREF_DIR_PATH);
                 dreamSettingsActivity.prefDirPictures = (CheckBoxPreference) findPreference(PREF_DIR_PICTURES);
                 dreamSettingsActivity.prefDirExternal = (CheckBoxPreference) findPreference(PREF_DIR_EXTERNAL);
                 dreamSettingsActivity.prefDirRoot = (CheckBoxPreference) findPreference(PREF_DIR_ROOT);
-                dreamSettingsActivity.setFileselectSummary();
+                dreamSettingsActivity.setFileSelectSummary();
                 if (Build.VERSION.SDK_INT >= 8) {
-                    dreamSettingsActivity.prefDirPictures.setOnPreferenceChangeListener(dreamSettingsActivity.sBindDirpath);
+                    dreamSettingsActivity.prefDirPictures.setOnPreferenceChangeListener(dreamSettingsActivity.sBindDirPath);
                 } else {
                     dreamSettingsActivity.prefDirPictures.setEnabled(false);
                 }
-                dreamSettingsActivity.prefDirExternal.setOnPreferenceChangeListener(dreamSettingsActivity.sBindDirpath);
-                dreamSettingsActivity.prefDirRoot.setOnPreferenceChangeListener(dreamSettingsActivity.sBindDirpath);
+                dreamSettingsActivity.prefDirExternal.setOnPreferenceChangeListener(dreamSettingsActivity.sBindDirPath);
+                dreamSettingsActivity.prefDirRoot.setOnPreferenceChangeListener(dreamSettingsActivity.sBindDirPath);
                 dreamSettingsActivity.prefDirPath.setOnPreferenceClickListener(dreamSettingsActivity.sBindDirSelect);
             } else {
                 addPreferencesFromResource(R.xml.pref_dream_galleryselect);
