@@ -287,11 +287,11 @@ public class DreamSettingsActivity extends PreferenceActivity {
         if(prefDirPath != null) {
             final SharedPreferences sharedPrefs = (PreferenceManager.getDefaultSharedPreferences(this));
             final String dirPath = sharedPrefs.getString(PREF_DIR_PATH, "");
-            final boolean isPicturesDir = Build.VERSION.SDK_INT >= 8 && dirPath.equals(getExternalPicturesDir().getAbsolutePath());
+            final boolean isPicturesDir = Build.VERSION.SDK_INT >= 8 && dirPath!= null && dirPath.equals(getExternalPicturesDir().getAbsolutePath());
             prefDirPictures.setChecked(isPicturesDir);
-            final boolean isExternalDir = dirPath.equals(Environment.getExternalStorageDirectory().getAbsolutePath());
+            final boolean isExternalDir = dirPath != null && dirPath.equals(Environment.getExternalStorageDirectory().getAbsolutePath());
             prefDirExternal.setChecked(isExternalDir);
-            final boolean isRootDir = dirPath.equals(Environment.getRootDirectory().getAbsolutePath());
+            final boolean isRootDir = dirPath != null && dirPath.equals(Environment.getRootDirectory().getAbsolutePath());
             prefDirRoot.setChecked(isRootDir);
             prefDirPath.setSummary(dirPath);
         }

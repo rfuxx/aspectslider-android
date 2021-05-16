@@ -27,7 +27,6 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.service.dreams.DreamService;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -38,7 +37,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -316,14 +314,18 @@ public class Slideshow {
 
         void applyDelay(final SharedPreferences sharedPref) {
             final String delayStr = sharedPref.getString(PREF_DELAY, "5000");
-            try {
-                int delayVal = Integer.parseInt(delayStr);
-                if (delayVal < 1000) {
-                    delayVal = 1000;
+            if(delayStr != null) {
+                try {
+                    int delayVal = Integer.parseInt(delayStr);
+                    if (delayVal < 1000) {
+                        delayVal = 1000;
+                    }
+                    settingNextSlideAfter = delayVal;
+                } catch (final NumberFormatException e) {
+                    System.err.println("NumberFormatException on pref delay: " + delayStr);
                 }
-                settingNextSlideAfter = delayVal;
-            } catch (final NumberFormatException e) {
-                System.err.println("NumberFormatException on pref delay: " + delayStr);
+            } else {
+                settingNextSlideAfter = 5000;
             }
         }
 
@@ -510,7 +512,10 @@ public class Slideshow {
                 getFilesFromMediaStore(pictures);
             }
             if (scanRunning && refusedPics > 0) {
-                showCentralToast(context.getResources().getQuantityString(R.plurals.refused_pictures, refusedPics, refusedPics, getNameOfSizeFilter()));
+                Toast.makeText(context
+                             , context.getResources().getQuantityString(R.plurals.refused_pictures, refusedPics, refusedPics, getNameOfSizeFilter())
+                             , Toast.LENGTH_LONG)
+                     .show();
             }
             scanRunning = false;
             if (pictures.isEmpty()) {
@@ -550,7 +555,7 @@ public class Slideshow {
                     if (picture.bitmap == null || picture.bitmap.isRecycled()) {
                         picture.loadBitmap(sw, sh);
                         if (picture.bitmap == null) {
-                            showFailedToast(context, picture);
+                            showCannotLoadToast(context, picture);
                             synchronized (picture) {
                                 pictures.remove(picture);
                                 currentPicture--;
@@ -717,7 +722,7 @@ public class Slideshow {
                         if (picture.bitmap == null || picture.bitmap.isRecycled()) {
                             picture.loadBitmap(sw, sh);
                             if (picture.bitmap == null) {
-                                showFailedToast(context, picture);
+                                showCannotLoadToast(context, picture);
                                 synchronized (picture) {
                                     pictures.remove(picture);
                                     currentPicture--;
@@ -785,7 +790,7 @@ public class Slideshow {
                         if (picture.bitmap == null || picture.bitmap.isRecycled()) {
                             picture.loadBitmap(sw, sh);
                             if (picture.bitmap == null) {
-                                showFailedToast(context, picture);
+                                showCannotLoadToast(context, picture);
                                 synchronized (pictures) {
                                     pictures.remove(picture);
                                     if(pictures.isEmpty()) {
@@ -1046,7 +1051,7 @@ public class Slideshow {
                         if (nextPic.bitmap == null || nextPic.bitmap.isRecycled()) {
                             nextPic.loadBitmap(sw, sh);
                             if (nextPic.bitmap == null) {
-                                showFailedToast(context, nextPic);
+                                showCannotLoadToast(context, nextPic);
                                 removePicture(nextPic);
                                 nextPicture--;
                                 continue;
@@ -1107,7 +1112,7 @@ public class Slideshow {
                         if (nextPic.bitmap == null || nextPic.bitmap.isRecycled()) {
                             nextPic.loadBitmap(sw, sh);
                             if (nextPic.bitmap == null) {
-                                showFailedToast(context, nextPic);
+                                showCannotLoadToast(context, nextPic);
                                 removePicture(nextPic);
                                 continue;
                             }
@@ -1251,7 +1256,8 @@ public class Slideshow {
         settingSizeFilter = sharedPref.getString(PREF_SIZE_FILTER, Slideshow.PREF_SIZE_FILTER_NONE);
         settingRememberCollection = isDaydream() || sharedPref.getBoolean(PREF_REMEMBER_COLLECTION, false);
         if (settingRememberCollection) {
-            path = new File(sharedPref.getString(PREF_DIR_PATH, ""));
+            final String prefDirPath = sharedPref.getString(PREF_DIR_PATH, "");
+            path = new File(prefDirPath != null ? prefDirPath : "");
             mediaUri = Uri.parse(sharedPref.getString(PREF_MEDIA_URI, MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString()));
             mediaSelection = sharedPref.getString(PREF_MEDIA_SELECTION, null);
         }
@@ -1410,7 +1416,7 @@ public class Slideshow {
         final String[] columnsV16 = {MediaStore.Images.Media.DATA, MediaStore.Images.Media.WIDTH, MediaStore.Images.Media.HEIGHT, MediaStore.Images.Media.ORIENTATION};
         final String[] columnsOld = {MediaStore.Images.Media.DATA};
         final String[] columns = (Build.VERSION.SDK_INT >= 28) ? columnsV28 : (Build.VERSION.SDK_INT >= 16) ? columnsV16 : columnsOld;
-        final String sort = settingRandom ? null : MediaStore.MediaColumns.DATA;  // is then compatible with sort()ing the PicInfos
+        final String sort = settingRandom ? null : MediaStore.MediaColumns.DATA;  // is then compatible with sort()ing the PicInfo(s)
         final Cursor cursor = contentResolver.query(mediaUri, columns, mediaSelection, null, sort);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
@@ -1656,15 +1662,6 @@ public class Slideshow {
         editor.commit();
     }
 
-    private void showCentralToast(String text) {
-        final Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-        final View textView = toast.getView().findViewById(android.R.id.message);
-        if (textView instanceof TextView) {
-            ((TextView) textView).setGravity(Gravity.CENTER);
-        }
-        toast.show();
-    }
-
     private String getNameOfSizeFilter() {
         final Resources res = context.getResources();
         final String[] filterIds = res.getStringArray(R.array.pref_size_filter_list_values);
@@ -1770,7 +1767,7 @@ public class Slideshow {
         }
     }
 
-    private void showFailedToast(final Context context, final PicInfo picture) {
+    private void showCannotLoadToast(final Context context, final PicInfo picture) {
         Toast.makeText(context, context.getString(R.string.cannot_load, picture.picSource), Toast.LENGTH_SHORT).show();
     }
 
