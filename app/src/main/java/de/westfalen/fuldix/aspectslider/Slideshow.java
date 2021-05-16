@@ -280,7 +280,18 @@ public class Slideshow {
     private class SettingsListener implements SharedPreferences.OnSharedPreferenceChangeListener {
         @Override
         public void onSharedPreferenceChanged(final SharedPreferences sharedPref, final String key) {
-            if (key.equals(PREF_DELAY)) {
+            if(key == null) {
+                applyDelay(sharedPref);
+                applySpaceBetweenSlides(sharedPref);
+                applyAllowOverscan(sharedPref);
+                applyRandom(sharedPref);
+                applyRandomAgain(sharedPref);
+                applyRecurse(sharedPref);
+                applySizeFilter(sharedPref);
+                applyRememberCollection(sharedPref);
+                applyIgnoreMediaStore(sharedPref);
+                applyKeepBright(sharedPref);
+            } else if (key.equals(PREF_DELAY)) {
                 applyDelay(sharedPref);
             } else if (key.equals(PREF_SPACE_BETWEEN_SLIDES)) {
                 applySpaceBetweenSlides(sharedPref);
