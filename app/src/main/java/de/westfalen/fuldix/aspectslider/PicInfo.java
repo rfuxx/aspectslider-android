@@ -173,13 +173,11 @@ class PicInfo implements Comparable<PicInfo> {
     private int getTargetSampleSize(int sw, int sh) {
         // we have to use the file measures because others may have been rotated for layout
         final int size = Math.max(sw, sh);
-        if (fileWidth < size && fileHeight < size) {
-            return 1;
-        } else if (fileWidth < fileHeight) {
+        if (fileWidth < fileHeight) {
             // to crop for "overscan" worst case is to put the shorter side of the image at the longer side of the screen
-            return fileWidth / size;
+            return Math.max(fileWidth / size, 1);
         } else {
-            return fileHeight / size;
+            return Math.max(fileHeight / size, 1);
         }
     }
 
