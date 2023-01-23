@@ -17,6 +17,7 @@
         android:paddingEnd="48dp"
         android:paddingBottom="16dp"
         android:src="@android:drawable/gallery_thumb"
+        android:importantForAccessibility="no"
         />
     <ImageView
         android:id="@+id/galleryicon2"
@@ -36,6 +37,7 @@
         android:paddingEnd="24dp"
         android:paddingBottom="8dp"
         android:src="@android:drawable/gallery_thumb"
+        android:importantForAccessibility="no"
         />
     <ImageView
         android:id="@+id/galleryicon1"
@@ -55,6 +57,7 @@
         android:paddingEnd="0dp"
         android:paddingBottom="0dp"
         android:src="@android:drawable/gallery_thumb"
+        android:importantForAccessibility="no"
         />
     <TextView style="?android:textAppearanceMedium"
         android:layout_width="wrap_content"

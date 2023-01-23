@@ -13,7 +13,8 @@
         android:keepScreenOn="true"
         android:layout_weight="10"
         android:background="#000000"
-        tools:context=".SlideshowActivity"    >
+        android:contentDescription="@string/picture_area"
+        tools:context=".SlideshowActivity">
 
         <SurfaceView
             android:id="@+id/canvasView"

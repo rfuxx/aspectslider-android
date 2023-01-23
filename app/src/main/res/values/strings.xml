@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">Aspect Slider</string>
+    <string name="picture_area">Picture Area</string>
     <string name="no_pictures">No Pictures</string>
     <string name="cannot_load">Failed to load %s</string>
     <plurals name="refused_pictures">
@@ -23,7 +23,7 @@
         <item quantity="one">one picture</item>
         <item quantity="other">%d pictures</item>
     </plurals>
-    <string name="dir_selectthis">Select &#9654; %s</string>
+    <string name="dir_selectthis">Select</string>
     <string name="dir_up">&#8679; Up</string>
     <string name="dir_root">&lt;root&gt;</string>
     <string name="dir_info_format_files_and_subdirs">%1$s, %2$s</string>
